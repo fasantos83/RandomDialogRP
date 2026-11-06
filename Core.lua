@@ -1,5 +1,5 @@
 -- Core.lua
--- Main addon logic, Auto Race Detection (Skyborne & standard races), Phrase Manager with Edit Mode & Localization
+-- Main addon logic, Auto Race Detection, Phrase Manager with Edit Mode & Localization
 
 local currentRace = "Tauren"
 local buttonTexts = {}
@@ -107,24 +107,15 @@ UIDropDownMenu_SetWidth(dropDown, 120)
 
 local DropDown_OnClick
 
+-- Ordem exata: Aliança, Horda e Skyborne no fim
 local raceOrder = {
-    -- Alliance
-    "Human",
-    "Dwarf",
-    "NightElf",
-    "Gnome",
-    -- Horde
-    "Orc",
-    "Troll",
-    "Tauren",
-    "Undead",
-    -- Neutral
+    "Human", "Dwarf", "NightElf", "Gnome",
+    "Orc", "Troll", "Tauren", "Undead",
     "Skyborne"
 }
 
 local function DropDown_Initialize(self, level)
     for _, raceName in ipairs(raceOrder) do
-        -- Garante que só exibe se a raça existir no banco de dados
         if RandomDialogRP_CustomDB[raceName] then
             local info = UIDropDownMenu_CreateInfo()
             info.text = raceName
@@ -408,9 +399,9 @@ local closeBtn = CreateFrame("Button", nil, managerFrame, "UIPanelCloseButton")
 closeBtn:SetPoint("TOPRIGHT", managerFrame, "TOPRIGHT", -2, -2)
 
 -- ============================================================================
--- 3. MINIMAP BUTTON
+-- 3. MINIMAP BUTTON (Aggregator Compatible - MBB)
 -- ============================================================================
-local minimapButton = CreateFrame("Button", "RandomDialogRPMiniButton", Minimap)
+local minimapButton = CreateFrame("Button", "RandomDialogRPMinimapButton", Minimap)
 minimapButton:SetSize(31, 31)
 minimapButton:SetFrameLevel(Minimap:GetFrameLevel() + 2)
 minimapButton:RegisterForClicks("LeftButtonUp")
@@ -466,7 +457,7 @@ end)
 minimapButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 -- ============================================================================
--- 4. EVENT LISTENER & SLASH COMMANDS (WITH SKYBORNE DETECTION)
+-- 4. EVENT LISTENER & SLASH COMMANDS
 -- ============================================================================
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")

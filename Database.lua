@@ -17,7 +17,7 @@ RandomDialogRP_Defaults = {
             frases = {
                 "May the Earthmother guide our steps on this journey, %s.",
                 "Walk with the earth, %s.",
-                "Ah, greetings traveler. May your path be free of thorns.",
+                "Ah, greetings %s. May your path be free of thorns.",
                 "Peace be upon your dwelling, %s."
             },
             emote = "WAVE"
@@ -26,7 +26,7 @@ RandomDialogRP_Defaults = {
             frases = {
                 "The Earthmother smiles upon your generosity, %s.",
                 "I am deeply grateful for your assistance, %s.",
-                "Your kindness echoes through the plains, friend.",
+                "Your kindness echoes through the plains, %s.",
                 "My thanks to you, %s. May the winds be ever at your back."
             },
             emote = "THANK"
@@ -46,8 +46,8 @@ RandomDialogRP_Defaults = {
             frases = {
                 "Lok'tar ogar, %s! Victory or death.",
                 "Strength and honor, %s.",
-                "Speak truth, traveler, or speak not at all.",
-                "Well met, warrior. What brings you to our camp?"
+                "Speak truth, %s, or speak not at all.",
+                "Well met, %s. What brings you to our camp?"
             },
             emote = "SALUTE"
         },
@@ -145,7 +145,7 @@ RandomDialogRP_Defaults = {
         thanks = {
             frases = {
                 "The Alliance is in your debt, %s. Thank you.",
-                "Much obliged for your help, friend.",
+                "Much obliged for your help, %s.",
                 "I won't forget this kindness.",
                 "A fine display of heroism. My thanks to you!"
             },
@@ -166,7 +166,7 @@ RandomDialogRP_Defaults = {
             frases = {
                 "Top o' the mornin' to ye, %s!",
                 "Keep yer feet on the ground!",
-                "Well met, friend! Care for a pint after this?",
+                "Well met, %s! Care for a pint after this?",
                 "Aye, what can old Ironforge do for ye today?"
             },
             emote = "DRINK"
@@ -267,7 +267,7 @@ RandomDialogRP_Defaults = {
                 "The heavens themselves sing of your generosity, %s.",
                 "A light gesture with a heavy impact. You have my gratitude.",
                 "May the highest breezes guide your steps for this kindness.",
-                "My gratitude lifts as high as the clouds, friend."
+                "My gratitude lifts as high as the clouds, %s."
             },
             emote = "THANK"
         },
