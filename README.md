@@ -100,3 +100,25 @@ The exact World of Warcraft folder may differ depending on the client installati
 | `/rp` | Show or hide the main panel |
 | `/rp config` | Open the phrase manager |
 | `/rp edit` | Open the phrase manager |
+
+## Optional CurseForge Publishing MCP
+
+This workspace includes an optional local MCP server for publishing releases to CurseForge.
+
+1. Revoke any API token that was shared in chat or committed anywhere.
+2. Create a replacement CurseForge API token.
+3. Store it as a Windows user environment variable:
+
+   ```powershell
+   [Environment]::SetEnvironmentVariable("CURSEFORGE_API_TOKEN", "YOUR_TOKEN", "User")
+   ```
+
+4. Install the MCP dependency:
+
+   ```powershell
+   python -m pip install -r requirements-mcp.txt
+   ```
+
+5. Restart VS Code and enable the `curseforge-publisher` MCP server.
+
+Use the `publish_curseforge_release` tool with the CurseForge project ID, addon path, version, changelog, release type, and optional game-version IDs. The server creates the ZIP locally and never writes the API token to disk.

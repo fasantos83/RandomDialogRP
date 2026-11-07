@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "curseforge-publisher": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "${workspaceFolder}/curseforge_mcp.py"
+      ],
+      "env": {
+        "CURSEFORGE_API_TOKEN": "${env:CURSEFORGE_API_TOKEN}"
+      }
+    }
+  }
+}
