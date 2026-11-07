@@ -281,4 +281,113 @@ RandomDialogRP_Defaults = {
             emote = "ROAR"
         }
     }
+
 }
+
+    RandomDialogRP_Icons.farewell = "Interface\\Icons\\Ability_Rogue_Sprint"
+    RandomDialogRP_Icons.warning = "Interface\\Icons\\Spell_Shadow_DeathCoil"
+    RandomDialogRP_Icons.question = "Interface\\Icons\\INV_Misc_Book_09"
+    RandomDialogRP_Icons.agreement = "Interface\\Icons\\Spell_Holy_SealOfMight"
+    RandomDialogRP_Icons.disagreement = "Interface\\Icons\\Ability_Warrior_Disarm"
+    RandomDialogRP_Icons.celebration = "Interface\\Icons\\Spell_Holy_HolyNova"
+    RandomDialogRP_Icons.encouragement = "Interface\\Icons\\Spell_Holy_HolyProtection"
+    RandomDialogRP_Icons.joke = "Interface\\Icons\\INV_Misc_QuestionMark"
+
+    local extraCategoryData = {
+        farewell = {
+            emote = "BYE",
+            phrases = {
+                "The road calls, %s. May the %s spirit guide you.",
+                "Until our paths cross again, %s.",
+                "Go well, traveler. The %s watch over your journey.",
+                "Farewell for now. Keep your courage close, %s."
+            }
+        },
+        warning = {
+            emote = "POINT",
+            phrases = {
+                "Take care, %s. The %s lands are dangerous tonight.",
+                "Keep your guard up, %s. Something is not right.",
+                "That path carries danger. Turn back while you can.",
+                "You have been warned, %s. Do not ignore the signs."
+            }
+        },
+        question = {
+            emote = "TALK",
+            phrases = {
+                "Tell me, %s, what brings you to the %s?",
+                "What is your purpose here, traveler?",
+                "Have you heard news from the %s front, %s?",
+                "Which path would you take in my place, %s?"
+            }
+        },
+        agreement = {
+            emote = "YES",
+            phrases = {
+                "I agree, %s. That is the %s way.",
+                "A sound plan. You have my support.",
+                "Your words ring true, %s.",
+                "Then it is settled. We move as one."
+            }
+        },
+        disagreement = {
+            emote = "NO",
+            phrases = {
+                "No, %s. That is not how the %s would act.",
+                "I cannot support that course.",
+                "You are mistaken, traveler. Think again.",
+                "Not while I still stand, %s."
+            }
+        },
+        celebration = {
+            emote = "CHEER",
+            phrases = {
+                "A glorious victory for the %s, %s!",
+                "Raise your voice! Today we celebrate!",
+                "Well done, %s. Your deed will be remembered.",
+                "Let the whole %s know of this triumph!"
+            }
+        },
+        encouragement = {
+            emote = "CHEER",
+            phrases = {
+                "Stand tall, %s. The %s do not yield.",
+                "You have more strength than you know. Keep going.",
+                "Courage, friend. We face this together.",
+                "The next step is yours, %s. Make it count."
+            }
+        },
+        joke = {
+            emote = "LAUGH",
+            phrases = {
+                "I would explain the %s joke, but we have places to be.",
+                "Even a %s can appreciate a little humor, %s.",
+                "That plan was almost as clever as a %s trying to whisper.",
+                "Laugh while you can, %s. Tomorrow may be serious."
+            }
+        }
+    }
+
+    local extraRaceFlavors = {
+        Human = "human",
+        Dwarf = "dwarven",
+        NightElf = "night elven",
+        Gnome = "gnomish",
+        Orc = "orcish",
+        Troll = "troll",
+        Tauren = "Tauren",
+        Undead = "Forsaken",
+        Skyborne = "Skyborne"
+    }
+
+    for raceName, flavor in pairs(extraRaceFlavors) do
+        for categoryName, categoryData in pairs(extraCategoryData) do
+            RandomDialogRP_Defaults[raceName][categoryName] = {
+                frases = {},
+                emote = categoryData.emote
+            }
+            for _, phrase in ipairs(categoryData.phrases) do
+                table.insert(RandomDialogRP_Defaults[raceName][categoryName].frases, string.format(phrase, "%s", flavor))
+            end
+        end
+    end

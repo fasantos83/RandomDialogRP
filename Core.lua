@@ -3,7 +3,10 @@
 
 local currentRace = "Tauren"
 local buttonTexts = {}
-local builtinCategories = { "greetings", "thanks", "battle" }
+local builtinCategories = {
+    "greetings", "thanks", "battle", "farewell", "warning", "question",
+    "agreement", "disagreement", "celebration", "encouragement", "joke"
+}
 local emoteOptions = {
     "AGREE", "AMAZE", "ANGRY", "APPLAUD", "ATTACKMYTARGET", "BARK", "BECKON",
     "BOW", "BYE", "CACKLE", "CHEER", "CHEST", "CHICKEN", "CHUCKLE", "CLAP", "COWER", "CRY",
@@ -152,7 +155,7 @@ end
 -- 1. MAIN FRAME PANEL
 -- ============================================================================
 local frame = CreateFrame("Frame", "RandomDialogRPFrame", UIParent, "BackdropTemplate")
-frame:SetSize(190, 175)
+frame:SetSize(250, 175)
 frame:SetMovable(true)
 frame:EnableMouse(true)
 frame:SetClampedToScreen(true)
@@ -208,10 +211,10 @@ local function DropDown_Initialize(self, level)
 end
 
 -- Action Buttons Helper
-local function CreateActionButton(category, posY)
+local function CreateActionButton(category, posX, posY)
     local btn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    btn:SetSize(170, 24)
-    btn:SetPoint("TOP", frame, "TOP", 0, posY)
+    btn:SetSize(112, 24)
+    btn:SetPoint("TOP", frame, "TOP", posX, posY)
     
     local buttonText = btn:GetFontString()
     buttonTexts[category] = { btn = btn }
@@ -239,9 +242,13 @@ local function RefreshActionButtons()
     for _, data in pairs(buttonTexts) do data.btn:Hide() end
     buttonTexts = {}
     local categories = GetCategories(currentRace)
-    frame:SetHeight(math.max(175, 85 + (#categories * 30)))
+    local rowCount = math.ceil(#categories / 2)
+    frame:SetHeight(math.max(175, 85 + (rowCount * 30)))
     for index, category in ipairs(categories) do
-        local button = CreateActionButton(category, -60 - ((index - 1) * 30))
+        local column = (index - 1) % 2
+        local row = math.floor((index - 1) / 2)
+        local posX = column == 0 and -58 or 58
+        local button = CreateActionButton(category, posX, -60 - (row * 30))
         button:Show()
     end
 end
