@@ -19,6 +19,7 @@ Use the movable panel to quickly send race-themed dialogue or any custom phrases
 - Choose category icons from Blizzard's macro icon collection.
 - Movable main panel and draggable minimap button.
 - Saves phrases, categories, icons, emotes, language, and positions.
+- Supports account-wide named profiles that can be created, loaded, renamed, and deleted.
 - English and Brazilian Portuguese localization.
 
 ## Opening the Addon
@@ -121,4 +122,8 @@ This workspace includes an optional local MCP server for publishing releases to 
 
 5. Restart VS Code and enable the `curseforge-publisher` MCP server.
 
-Use the `publish_curseforge_release` tool with the CurseForge project ID, addon path, version, changelog, release type, and optional game-version IDs. The server creates the ZIP locally and never writes the API token to disk.
+The addon source files are in the `addon` folder, and the MCP publisher is in
+`tools/curseforge_mcp.py`. Use the `publish_curseforge_release` tool with the
+CurseForge project ID, addon path, version, changelog, release type, and
+optional game-version IDs. The server creates the ZIP locally and never writes
+the API token to disk.

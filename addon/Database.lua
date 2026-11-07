@@ -135,7 +135,7 @@ RandomDialogRP_Defaults = {
     Human = {
         greetings = {
             frases = {
-                "Greetings, traveler. Stay safe out there.",
+                "Greetings, %s. Stay safe out there.",
                 "Light be with you, %s.",
                 "Well met! What brings you to these lands?",
                 "Keep your chin up, %s. Better days are ahead."
@@ -255,7 +255,7 @@ RandomDialogRP_Defaults = {
     Skyborne = {
         greetings = {
             frases = {
-                "May the eternal winds carry your grace, %s.",
+                "May the eternal winds carry you safely, %s.",
                 "Greetings from the high crests, traveler.",
                 "Keep your wings open and your gaze upon the horizon.",
                 "The skies are peaceful today, %s. What brings you to us?"
@@ -299,7 +299,7 @@ RandomDialogRP_Defaults = {
             phrases = {
                 "The road calls, %s. May the %s spirit guide you.",
                 "Until our paths cross again, %s.",
-                "Go well, traveler. The %s watch over your journey.",
+                "Go well, %s. May the %s watch over your journey.",
                 "Farewell for now. Keep your courage close, %s."
             }
         },
@@ -315,9 +315,9 @@ RandomDialogRP_Defaults = {
         question = {
             emote = "TALK",
             phrases = {
-                "Tell me, %s, what brings you to the %s?",
+                "Tell me, %s, what brings you to %s territory?",
                 "What is your purpose here, traveler?",
-                "Have you heard news from the %s front, %s?",
+                "Have you heard, %s, about the %s front?",
                 "Which path would you take in my place, %s?"
             }
         },
@@ -333,7 +333,7 @@ RandomDialogRP_Defaults = {
         disagreement = {
             emote = "NO",
             phrases = {
-                "No, %s. That is not how the %s would act.",
+                "No, %s. That is not how the %s folk would act.",
                 "I cannot support that course.",
                 "You are mistaken, traveler. Think again.",
                 "Not while I still stand, %s."
@@ -342,16 +342,16 @@ RandomDialogRP_Defaults = {
         celebration = {
             emote = "CHEER",
             phrases = {
-                "A glorious victory for the %s, %s!",
+                "A glorious victory, %s! The %s folk will remember it!",
                 "Raise your voice! Today we celebrate!",
                 "Well done, %s. Your deed will be remembered.",
-                "Let the whole %s know of this triumph!"
+                "Let everyone know of this triumph!"
             }
         },
         encouragement = {
             emote = "CHEER",
             phrases = {
-                "Stand tall, %s. The %s do not yield.",
+                "Stand tall, %s. The %s folk do not yield.",
                 "You have more strength than you know. Keep going.",
                 "Courage, friend. We face this together.",
                 "The next step is yours, %s. Make it count."
@@ -360,9 +360,9 @@ RandomDialogRP_Defaults = {
         joke = {
             emote = "LAUGH",
             phrases = {
-                "I would explain the %s joke, but we have places to be.",
-                "Even a %s can appreciate a little humor, %s.",
-                "That plan was almost as clever as a %s trying to whisper.",
+                "I would explain the joke, %s, but the %s folk have places to be.",
+                "Even you can appreciate a little humor, %s. The %s folk certainly do.",
+                "That plan was almost as clever as your attempt to whisper, %s. Even the %s folk noticed.",
                 "Laugh while you can, %s. Tomorrow may be serious."
             }
         }
@@ -375,7 +375,7 @@ RandomDialogRP_Defaults = {
         Gnome = "gnomish",
         Orc = "orcish",
         Troll = "troll",
-        Tauren = "Tauren",
+        Tauren = "tauren",
         Undead = "Forsaken",
         Skyborne = "Skyborne"
     }

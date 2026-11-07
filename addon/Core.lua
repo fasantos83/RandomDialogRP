@@ -3,6 +3,9 @@
 
 local currentRace = "Tauren"
 local buttonTexts = {}
+local editBox
+local minimapButton
+local MoveMinimapButton
 local builtinCategories = {
     "greetings", "thanks", "battle", "farewell", "warning", "question",
     "agreement", "disagreement", "celebration", "encouragement", "joke"
@@ -21,13 +24,114 @@ if #iconOptions == 0 then
     iconOptions = { "Interface\\Icons\\INV_Misc_QuestionMark" }
 end
 
--- SavedVariables Initializers (Enforces English 'enUS' as default)
+-- SavedVariables contain account-wide named profiles.
 RandomDialogRPDB = RandomDialogRPDB or {}
-RandomDialogRPDB.panel = RandomDialogRPDB.panel or { point = "CENTER", relativePoint = "CENTER", xOfs = 0, yOfs = -100 }
-RandomDialogRPDB.minimap = RandomDialogRPDB.minimap or { angle = 45 }
-RandomDialogRPDB.language = RandomDialogRPDB.language or "enUS"
-
 RandomDialogRP_CustomDB = RandomDialogRP_CustomDB or {}
+
+local function GetProfileKey()
+    local characterName = UnitName("player") or "UnknownCharacter"
+    local realmName = GetRealmName() or "UnknownRealm"
+    if realmName == "" then realmName = "UnknownRealm" end
+    return realmName .. "-" .. characterName
+end
+
+local function CopyTable(value)
+    if type(value) ~= "table" then return value end
+    local copy = {}
+    for key, item in pairs(value) do
+        copy[key] = CopyTable(item)
+    end
+    return copy
+end
+
+local function EnsureProfileStore()
+    local profileKey = GetProfileKey()
+    if not RandomDialogRPDB.profiles then
+        local legacySettings = {
+            panel = RandomDialogRPDB.panel,
+            minimap = RandomDialogRPDB.minimap,
+            language = RandomDialogRPDB.language
+        }
+        RandomDialogRPDB.profiles = {
+            Default = {
+                settings = legacySettings,
+                custom = RandomDialogRP_CustomDB
+            }
+        }
+        RandomDialogRP.activeProfile = "Default"
+    elseif not RandomDialogRPDB.profileSchemaVersion then
+        local oldProfiles = RandomDialogRPDB.profiles
+        local namedProfiles = {}
+        local currentProfile = oldProfiles[profileKey]
+        if currentProfile then
+            namedProfiles.Default = currentProfile
+        end
+        for key, profile in pairs(oldProfiles) do
+            if key ~= profileKey and type(profile) == "table" and profile.custom then
+                local name = profile.character or key
+                if namedProfiles[name] then name = key end
+                namedProfiles[name] = profile
+            end
+        end
+        if not namedProfiles.Default then
+            namedProfiles.Default = {
+                settings = {},
+                custom = {}
+            }
+        end
+        RandomDialogRPDB.profiles = namedProfiles
+        RandomDialogRPDB.activeProfile = "Default"
+        RandomDialogRPDB.profileSchemaVersion = 2
+    end
+end
+
+local function ActivateNamedProfile(profileName)
+    EnsureProfileStore()
+    local profile = RandomDialogRPDB.profiles[profileName]
+    if not profile then return false end
+    profile.settings = profile.settings or {}
+    profile.settings.panel = profile.settings.panel or { point = "CENTER", relativePoint = "CENTER", xOfs = 0, yOfs = -100 }
+    profile.settings.minimap = profile.settings.minimap or { angle = 45 }
+    profile.settings.language = profile.settings.language or "enUS"
+    profile.custom = profile.custom or {}
+    profile.name = profile.name or profileName
+    RandomDialogRPDB.activeProfile = profileName
+    RandomDialogRPDB.panel = profile.settings.panel
+    RandomDialogRPDB.minimap = profile.settings.minimap
+    RandomDialogRPDB.language = profile.settings.language
+    RandomDialogRP_CustomDB = profile.custom
+    return true
+end
+
+local function ActivateCharacterProfile()
+    EnsureProfileStore()
+    local profileName = RandomDialogRPDB.activeProfile or "Default"
+    if not RandomDialogRPDB.profiles[profileName] then
+        profileName = "Default"
+    end
+    ActivateNamedProfile(profileName)
+end
+
+local function GetProfileNames()
+    EnsureProfileStore()
+    local names = {}
+    for name in pairs(RandomDialogRPDB.profiles) do
+        table.insert(names, name)
+    end
+    table.sort(names)
+    return names
+end
+
+local function SaveActiveProfile()
+    local profileName = RandomDialogRPDB.activeProfile
+    local profile = RandomDialogRPDB.profiles[profileName]
+    if profile then
+        profile.settings.panel = RandomDialogRPDB.panel
+        profile.settings.minimap = RandomDialogRPDB.minimap
+        profile.settings.language = RandomDialogRPDB.language
+        profile.custom = RandomDialogRP_CustomDB
+    end
+end
 
 -- Initialize Custom DB and guarantee defaults are always present
 local function InitCustomDB()
@@ -271,6 +375,17 @@ configBtn:SetScript("OnEnter", function(self)
 end)
 configBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
+local profileBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+profileBtn:SetSize(68, 24)
+profileBtn:SetPoint("RIGHT", configBtn, "LEFT", -4, 0)
+profileBtn:SetText(L("profileBtn"))
+profileBtn:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+    GameTooltip:SetText(L("profileTitle"), 1, 1, 1)
+    GameTooltip:Show()
+end)
+profileBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
+
 -- ============================================================================
 -- 2. PHRASE MANAGER UI
 -- ============================================================================
@@ -300,6 +415,12 @@ managerTitle:SetText(L("managerTitle"))
 local selectedCategory = "greetings"
 local editingIndex = nil
 local RefreshManagerUI
+local resetDataBtn
+local profileFrame
+local profileDropDown
+local profileNameBox
+local selectedProfileName
+local RefreshProfileUI
 
 local function EnsureSelectedCategory()
     local categories = GetCategories(currentRace)
@@ -309,6 +430,208 @@ local function EnsureSelectedCategory()
     selectedCategory = categories[1]
     editingIndex = nil
 end
+
+profileFrame = CreateFrame("Frame", "RandomDialogRPProfiles", UIParent, "BackdropTemplate")
+profileFrame:SetSize(380, 260)
+profileFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+profileFrame:SetMovable(true)
+profileFrame:EnableMouse(true)
+profileFrame:SetClampedToScreen(true)
+profileFrame:Hide()
+profileFrame:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+    tile = true, tileSize = 32, edgeSize = 16,
+    insets = { left = 4, right = 4, top = 4, bottom = 4 }
+})
+profileFrame:RegisterForDrag("LeftButton")
+profileFrame:SetScript("OnDragStart", profileFrame.StartMoving)
+profileFrame:SetScript("OnDragStop", profileFrame.StopMovingOrSizing)
+
+local profileTitle = profileFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+profileTitle:SetPoint("TOP", profileFrame, "TOP", 0, -10)
+
+local currentProfileText = profileFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+currentProfileText:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", 20, -45)
+
+profileDropDown = CreateFrame("Frame", "RandomDialogRPProfileDropDown", profileFrame, "UIDropDownMenuTemplate")
+profileDropDown:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", 12, -65)
+UIDropDownMenu_SetWidth(profileDropDown, 210)
+
+local function ProfileDropDown_OnClick(self)
+    selectedProfileName = self.value
+    UIDropDownMenu_SetSelectedValue(profileDropDown, selectedProfileName)
+    UIDropDownMenu_SetText(profileDropDown, selectedProfileName)
+end
+
+local function ProfileDropDown_Initialize(self, level)
+    for _, name in ipairs(GetProfileNames()) do
+        local info = UIDropDownMenu_CreateInfo()
+        info.text = name
+        info.value = name
+        info.func = ProfileDropDown_OnClick
+        info.checked = (selectedProfileName == name)
+        UIDropDownMenu_AddButton(info, level)
+    end
+end
+UIDropDownMenu_Initialize(profileDropDown, ProfileDropDown_Initialize)
+
+profileNameBox = CreateFrame("EditBox", nil, profileFrame, "InputBoxTemplate")
+profileNameBox:SetSize(210, 22)
+profileNameBox:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", 20, -115)
+profileNameBox:SetAutoFocus(false)
+
+local profileHelpText = profileFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+profileHelpText:SetPoint("TOPLEFT", profileNameBox, "BOTTOMLEFT", 0, -4)
+profileHelpText:SetText("")
+
+local createProfileBtn = CreateFrame("Button", nil, profileFrame, "UIPanelButtonTemplate")
+createProfileBtn:SetSize(75, 24)
+createProfileBtn:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", 20, -155)
+
+local saveProfileBtn = CreateFrame("Button", nil, profileFrame, "UIPanelButtonTemplate")
+saveProfileBtn:SetSize(75, 24)
+saveProfileBtn:SetPoint("LEFT", createProfileBtn, "RIGHT", 6, 0)
+
+local loadProfileBtn = CreateFrame("Button", nil, profileFrame, "UIPanelButtonTemplate")
+loadProfileBtn:SetSize(75, 24)
+loadProfileBtn:SetPoint("LEFT", saveProfileBtn, "RIGHT", 6, 0)
+
+local renameProfileBtn = CreateFrame("Button", nil, profileFrame, "UIPanelButtonTemplate")
+renameProfileBtn:SetSize(75, 24)
+renameProfileBtn:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", 20, -190)
+
+local deleteProfileBtn = CreateFrame("Button", nil, profileFrame, "UIPanelButtonTemplate")
+deleteProfileBtn:SetSize(75, 24)
+deleteProfileBtn:SetPoint("LEFT", renameProfileBtn, "RIGHT", 6, 0)
+
+RefreshProfileUI = function()
+    EnsureProfileStore()
+    selectedProfileName = selectedProfileName or RandomDialogRPDB.activeProfile or "Default"
+    if not RandomDialogRPDB.profiles[selectedProfileName] then
+        selectedProfileName = RandomDialogRPDB.activeProfile or "Default"
+    end
+    profileTitle:SetText(L("profileTitle"))
+    currentProfileText:SetText(L("currentProfile") .. " " .. (RandomDialogRPDB.activeProfile or "Default"))
+    UIDropDownMenu_SetSelectedValue(profileDropDown, selectedProfileName)
+    UIDropDownMenu_SetText(profileDropDown, selectedProfileName)
+    profileNameBox:SetText(UnitName("player") or "Profile")
+    createProfileBtn:SetText(L("createProfileBtn"))
+    saveProfileBtn:SetText(L("saveProfileBtn"))
+    loadProfileBtn:SetText(L("loadProfileBtn"))
+    renameProfileBtn:SetText(L("renameProfileBtn"))
+    deleteProfileBtn:SetText(L("deleteProfileBtn"))
+end
+
+local function GetEnteredProfileName()
+    local name = profileNameBox:GetText() or ""
+    return string.gsub(name, "^%s*(.-)%s*$", "%1")
+end
+
+local function RefreshAfterProfileChange()
+    InitCustomDB()
+    selectedCategory = "greetings"
+    editingIndex = nil
+    if editBox then editBox:SetText("") end
+    EnsureSelectedCategory()
+    if frame then
+        frame:ClearAllPoints()
+        frame:SetPoint(
+            RandomDialogRPDB.panel.point,
+            UIParent,
+            RandomDialogRPDB.panel.relativePoint,
+            RandomDialogRPDB.panel.xOfs,
+            RandomDialogRPDB.panel.yOfs
+        )
+    end
+    if minimapButton and RandomDialogRPDB.minimap then
+        MoveMinimapButton(RandomDialogRPDB.minimap.angle)
+    end
+    RefreshActionButtons()
+    RefreshManagerUI()
+    RefreshProfileUI()
+end
+
+createProfileBtn:SetScript("OnClick", function()
+    local name = GetEnteredProfileName()
+    if name == "" then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("profileInvalid"))
+        return
+    end
+    EnsureProfileStore()
+    if RandomDialogRPDB.profiles[name] then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("profileExists"))
+        return
+    end
+    SaveActiveProfile()
+    RandomDialogRPDB.profiles[name] = CopyTable(RandomDialogRPDB.profiles[RandomDialogRPDB.activeProfile])
+    RandomDialogRPDB.profiles[name].name = name
+    ActivateNamedProfile(name)
+    RefreshAfterProfileChange()
+    print("|cFF00FF00[RandomDialogRP]|r " .. L("profileCreated"))
+end)
+
+saveProfileBtn:SetScript("OnClick", function()
+    SaveActiveProfile()
+    print("|cFF00FF00[RandomDialogRP]|r " .. L("profileSaved"))
+end)
+
+loadProfileBtn:SetScript("OnClick", function()
+    if not selectedProfileName or not ActivateNamedProfile(selectedProfileName) then return end
+    RefreshAfterProfileChange()
+    print("|cFF00FF00[RandomDialogRP]|r " .. L("profileLoaded"))
+end)
+
+renameProfileBtn:SetScript("OnClick", function()
+    local oldName = selectedProfileName
+    local name = GetEnteredProfileName()
+    if oldName == "Default" then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("cannotChangeDefault"))
+        return
+    end
+    if name == "" then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("profileInvalid"))
+        return
+    end
+    if RandomDialogRPDB.profiles[name] then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("profileExists"))
+        return
+    end
+    RandomDialogRPDB.profiles[name] = RandomDialogRPDB.profiles[oldName]
+    RandomDialogRPDB.profiles[name].name = name
+    RandomDialogRPDB.profiles[oldName] = nil
+    if RandomDialogRPDB.activeProfile == oldName then RandomDialogRPDB.activeProfile = name end
+    selectedProfileName = name
+    RefreshProfileUI()
+    print("|cFF00FF00[RandomDialogRP]|r " .. L("profileRenamed"))
+end)
+
+deleteProfileBtn:SetScript("OnClick", function()
+    local name = selectedProfileName
+    if name == "Default" then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("cannotChangeDefault"))
+        return
+    end
+    RandomDialogRPDB.profiles[name] = nil
+    if RandomDialogRPDB.activeProfile == name then
+        ActivateNamedProfile("Default")
+        RefreshAfterProfileChange()
+    end
+    selectedProfileName = "Default"
+    RefreshProfileUI()
+    print("|cFF00FF00[RandomDialogRP]|r " .. L("profileDeleted"))
+end)
+
+local profileCloseBtn = CreateFrame("Button", nil, profileFrame, "UIPanelCloseButton")
+profileCloseBtn:SetPoint("TOPRIGHT", profileFrame, "TOPRIGHT", -2, -2)
+profileBtn:SetScript("OnClick", function()
+    if profileFrame:IsShown() then
+        profileFrame:Hide()
+    else
+        RefreshProfileUI()
+        profileFrame:Show()
+    end
+end)
 
 -- Category Dropdown
 local catDropDown = CreateFrame("Frame", "RandomDialogRPCatDropDown", managerFrame, "UIDropDownMenuTemplate")
@@ -390,7 +713,7 @@ end
 UIDropDownMenu_Initialize(langDropDown, LangDropDown_Initialize)
 
 -- Input EditBox
-local editBox = CreateFrame("EditBox", nil, managerFrame, "InputBoxTemplate")
+editBox = CreateFrame("EditBox", nil, managerFrame, "InputBoxTemplate")
 editBox:SetSize(250, 20)
 editBox:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 18, -110)
 editBox:SetAutoFocus(false)
@@ -553,6 +876,7 @@ RefreshManagerUI = function()
     addCategoryBtn:SetText(L("addCategoryBtn"))
     renameCategoryBtn:SetText(L("renameCategoryBtn"))
     deleteCategoryBtn:SetText(L("deleteCategoryBtn"))
+    if resetDataBtn then resetDataBtn:SetText(L("resetBtn")) end
     
     for cat, data in pairs(buttonTexts) do
         data.btn:SetText(GetCategoryLabel(cat))
@@ -725,6 +1049,43 @@ local warningText = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontRedSm
 warningText:SetPoint("BOTTOM", managerFrame, "BOTTOM", 0, 45)
 warningText:SetText(L("reloadWarning"))
 
+StaticPopupDialogs["RANDOMDIALOGRP_RESET_CONFIRM"] = {
+    text = "",
+    button1 = YES,
+    button2 = NO,
+    hideOnEscape = true,
+    timeout = 0,
+    whileDead = true,
+    preferredIndex = 3,
+    OnShow = function(dialog)
+        dialog.text:SetText(L("resetConfirm"))
+    end,
+    OnAccept = function()
+        RandomDialogRPDB = { profiles = {} }
+        RandomDialogRP_CustomDB = {}
+        ActivateCharacterProfile()
+        InitCustomDB()
+        frame:ClearAllPoints()
+        frame:SetPoint("CENTER", UIParent, "CENTER", 0, -100)
+        MoveMinimapButton(45)
+        selectedCategory = "greetings"
+        editingIndex = nil
+        editBox:SetText("")
+        EnsureSelectedCategory()
+        RefreshActionButtons()
+        RefreshManagerUI()
+        print("|cFF00FF00[RandomDialogRP]|r Default phrases and settings restored.")
+    end
+}
+
+resetDataBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
+resetDataBtn:SetSize(140, 24)
+resetDataBtn:SetPoint("BOTTOM", managerFrame, "BOTTOM", -160, 15)
+resetDataBtn:SetText(L("resetBtn"))
+resetDataBtn:SetScript("OnClick", function()
+    StaticPopup_Show("RANDOMDIALOGRP_RESET_CONFIRM")
+end)
+
 local saveReloadBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 saveReloadBtn:SetSize(140, 24)
 saveReloadBtn:SetPoint("BOTTOM", managerFrame, "BOTTOM", 0, 15)
@@ -758,13 +1119,13 @@ closeBtn:SetPoint("TOPRIGHT", managerFrame, "TOPRIGHT", -2, -2)
 -- ============================================================================
 -- 3. MINIMAP BUTTON (Aggregator Compatible - MBB)
 -- ============================================================================
-local minimapButton = CreateFrame("Button", "RandomDialogRPMinimapButton", Minimap)
+minimapButton = CreateFrame("Button", "RandomDialogRPMinimapButton", Minimap)
 minimapButton:SetSize(31, 31)
 minimapButton:SetFrameLevel(Minimap:GetFrameLevel() + 2)
 minimapButton:RegisterForClicks("LeftButtonUp")
 minimapButton:RegisterForDrag("LeftButton")
 
-local function MoveMinimapButton(angle)
+MoveMinimapButton = function(angle)
     local rad = math.rad(angle)
     local x = math.cos(rad) * 80
     local y = math.sin(rad) * 80
@@ -820,6 +1181,7 @@ local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:SetScript("OnEvent", function(self, event, addonName)
     if addonName == "RandomDialogRP" then
+        ActivateCharacterProfile()
         InitCustomDB()
         
         local _, playerRaceEnglish = UnitRace("player")
