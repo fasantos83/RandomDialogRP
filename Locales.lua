@@ -21,7 +21,17 @@ RandomDialogRP_Locales = {
         phraseAdded = "New phrase added!",
         phraseUpdated = "Phrase updated successfully!",
         phraseRemoved = "Phrase removed.",
-        noPhrases = "No phrases registered for this category!"
+        noPhrases = "No phrases registered for this category!",
+        categoryName = "Category name",
+        addCategoryBtn = "Add",
+        renameCategoryBtn = "Rename",
+        deleteCategoryBtn = "Delete",
+        categoryAdded = "Category added!",
+        categoryUpdated = "Category renamed!",
+        categoryRemoved = "Category removed.",
+        categoryExists = "A category with that name already exists.",
+        cannotDeleteCategory = "Built-in categories cannot be deleted.",
+        emoteLabel = "Emote"
     },
     ptBR = {
         greetings = "Saudações",
@@ -42,7 +52,17 @@ RandomDialogRP_Locales = {
         phraseAdded = "Nova frase adicionada!",
         phraseUpdated = "Frase atualizada com sucesso!",
         phraseRemoved = "Frase removida.",
-        noPhrases = "Nenhuma frase registrada para esta categoria!"
+        noPhrases = "Nenhuma frase registrada para esta categoria!",
+        categoryName = "Nome da categoria",
+        addCategoryBtn = "Adicionar",
+        renameCategoryBtn = "Renomear",
+        deleteCategoryBtn = "Excluir",
+        categoryAdded = "Categoria adicionada!",
+        categoryUpdated = "Categoria renomeada!",
+        categoryRemoved = "Categoria removida.",
+        categoryExists = "Já existe uma categoria com esse nome.",
+        cannotDeleteCategory = "Categorias padrão não podem ser excluídas.",
+        emoteLabel = "Emote"
     }
 }
 
