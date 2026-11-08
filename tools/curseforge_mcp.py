@@ -49,8 +49,13 @@ def _multipart(fields: dict, file_field: str, file_name: str, file_data: bytes):
     body = bytearray()
     for name, value in fields.items():
         body.extend(f"--{boundary}\r\n".encode())
-        body.extend(f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode())
-        field_value = json.dumps(value) if isinstance(value, (list, dict)) else str(value)
+        if isinstance(value, (list, dict)):
+            body.extend(f'Content-Disposition: form-data; name="{name}"\r\n'.encode())
+            body.extend(b"Content-Type: application/json\r\n\r\n")
+            field_value = json.dumps(value)
+        else:
+            body.extend(f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode())
+            field_value = str(value)
         body.extend(field_value.encode())
         body.extend(b"\r\n")
     body.extend(f"--{boundary}\r\n".encode())

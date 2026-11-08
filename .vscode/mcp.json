@@ -2,7 +2,7 @@
   "servers": {
     "curseforge-publisher": {
       "type": "stdio",
-      "command": "python",
+      "command": "C:\\Users\\fasan\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
       "args": [
         "${workspaceFolder}/tools/curseforge_mcp.py"
       ],

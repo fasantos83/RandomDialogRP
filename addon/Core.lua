@@ -58,7 +58,7 @@ local function EnsureProfileStore()
                 custom = RandomDialogRP_CustomDB
             }
         }
-        RandomDialogRP.activeProfile = "Default"
+        RandomDialogRPDB.activeProfile = "Default"
     elseif not RandomDialogRPDB.profileSchemaVersion then
         local oldProfiles = RandomDialogRPDB.profiles
         local namedProfiles = {}
@@ -259,7 +259,7 @@ end
 -- 1. MAIN FRAME PANEL
 -- ============================================================================
 local frame = CreateFrame("Frame", "RandomDialogRPFrame", UIParent, "BackdropTemplate")
-frame:SetSize(250, 175)
+frame:SetSize(330, 215)
 frame:SetMovable(true)
 frame:EnableMouse(true)
 frame:SetClampedToScreen(true)
@@ -289,8 +289,8 @@ title:SetText("RandomDialogRP")
 
 -- Race Dropdown
 local dropDown = CreateFrame("Frame", "RandomDialogRPRaceDropDown", frame, "UIDropDownMenuTemplate")
-dropDown:SetPoint("TOPLEFT", frame, "TOPLEFT", -10, -28)
-UIDropDownMenu_SetWidth(dropDown, 120)
+dropDown:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, -28)
+UIDropDownMenu_SetWidth(dropDown, 145)
 
 local DropDown_OnClick
 
@@ -317,7 +317,7 @@ end
 -- Action Buttons Helper
 local function CreateActionButton(category, posX, posY)
     local btn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    btn:SetSize(112, 24)
+    btn:SetSize(145, 24)
     btn:SetPoint("TOP", frame, "TOP", posX, posY)
     
     local buttonText = btn:GetFontString()
@@ -347,11 +347,11 @@ local function RefreshActionButtons()
     buttonTexts = {}
     local categories = GetCategories(currentRace)
     local rowCount = math.ceil(#categories / 2)
-    frame:SetHeight(math.max(175, 85 + (rowCount * 30)))
+    frame:SetHeight(math.max(215, 85 + (rowCount * 30)))
     for index, category in ipairs(categories) do
         local column = (index - 1) % 2
         local row = math.floor((index - 1) / 2)
-        local posX = column == 0 and -58 or 58
+        local posX = column == 0 and -78 or 78
         local button = CreateActionButton(category, posX, -60 - (row * 30))
         button:Show()
     end
@@ -376,7 +376,7 @@ end)
 configBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 local profileBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-profileBtn:SetSize(68, 24)
+profileBtn:SetSize(82, 24)
 profileBtn:SetPoint("RIGHT", configBtn, "LEFT", -4, 0)
 profileBtn:SetText(L("profileBtn"))
 profileBtn:SetScript("OnEnter", function(self)
@@ -1179,39 +1179,49 @@ minimapButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
 -- ============================================================================
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
+eventFrame:RegisterEvent("PLAYER_LOGIN")
+local initialized = false
+
+local function InitializeAddon()
+    if initialized then return end
+    initialized = true
+
+    ActivateCharacterProfile()
+    InitCustomDB()
+
+    local _, playerRaceEnglish = UnitRace("player")
+    if playerRaceEnglish then
+        local raceUpper = string.upper(playerRaceEnglish)
+        if string.find(raceUpper, "SKYBORNE") then
+            currentRace = "Skyborne"
+            print("|cFF00FF00[RandomDialogRP]|r " .. L("autoDetected") .. " " .. currentRace)
+        elseif RandomDialogRP_CustomDB[playerRaceEnglish] then
+            currentRace = playerRaceEnglish
+            print("|cFF00FF00[RandomDialogRP]|r " .. L("autoDetected") .. " " .. currentRace)
+        end
+    end
+
+    UIDropDownMenu_SetSelectedValue(dropDown, currentRace)
+    UIDropDownMenu_SetText(dropDown, currentRace)
+    EnsureSelectedCategory()
+    RefreshActionButtons()
+
+    frame:SetPoint(
+        RandomDialogRPDB.panel.point,
+        UIParent,
+        RandomDialogRPDB.panel.relativePoint,
+        RandomDialogRPDB.panel.xOfs,
+        RandomDialogRPDB.panel.yOfs
+    )
+
+    if RandomDialogRPDB.minimap and RandomDialogRPDB.minimap.angle then
+        MoveMinimapButton(RandomDialogRPDB.minimap.angle)
+    end
+end
+
 eventFrame:SetScript("OnEvent", function(self, event, addonName)
-    if addonName == "RandomDialogRP" then
-        ActivateCharacterProfile()
-        InitCustomDB()
-        
-        local _, playerRaceEnglish = UnitRace("player")
-        if playerRaceEnglish then
-            local raceUpper = string.upper(playerRaceEnglish)
-            if string.find(raceUpper, "SKYBORNE") then
-                currentRace = "Skyborne"
-                print("|cFF00FF00[RandomDialogRP]|r " .. L("autoDetected") .. " " .. currentRace)
-            elseif RandomDialogRP_CustomDB[playerRaceEnglish] then
-                currentRace = playerRaceEnglish
-                print("|cFF00FF00[RandomDialogRP]|r " .. L("autoDetected") .. " " .. currentRace)
-            end
-        end
-        
-        UIDropDownMenu_SetSelectedValue(dropDown, currentRace)
-        UIDropDownMenu_SetText(dropDown, currentRace)
-        EnsureSelectedCategory()
-        RefreshActionButtons()
-        
-        frame:SetPoint(
-            RandomDialogRPDB.panel.point,
-            UIParent,
-            RandomDialogRPDB.panel.relativePoint,
-            RandomDialogRPDB.panel.xOfs,
-            RandomDialogRPDB.panel.yOfs
-        )
-        
-        if RandomDialogRPDB.minimap and RandomDialogRPDB.minimap.angle then
-            MoveMinimapButton(RandomDialogRPDB.minimap.angle)
-        end
+    if event == "PLAYER_LOGIN" or addonName == "RandomDialogRP" then
+        InitializeAddon()
     end
 end)
 
