@@ -19,6 +19,8 @@ emoteOptions = {
 }
 iconOptions = (GetMacroIcons and GetMacroIcons()) or {}
 if #iconOptions == 0 then iconOptions = { "Interface\\Icons\\INV_Misc_QuestionMark" } end
+recentPhraseSelections = {}
+phraseRepeatWindow = 10
 
 chatChannels = {
     { value = "SAY", label = "sayChannel" },
@@ -156,7 +158,16 @@ function ExecuteRP(category)
         return
     end
     
-    local index = math.random(1, #raceData.phrases)
+    local now = GetTime()
+    local recent = recentPhraseSelections[category]
+    local index
+    if #raceData.phrases > 1 and recent and now - recent.time <= phraseRepeatWindow then
+        repeat
+            index = math.random(1, #raceData.phrases)
+        until index ~= recent.index
+    else
+        index = math.random(1, #raceData.phrases)
+    end
     local phrase = raceData.phrases[index]
     local basePhrase = GetPhraseText(phrase)
     local target = GetTargetName()
@@ -177,6 +188,7 @@ function ExecuteRP(category)
     else
         SendChatMessage(formattedPhrase, channel)
     end
+    recentPhraseSelections[category] = { index = index, time = now }
     local emote = GetPhraseEmote(phrase, raceData)
     if emote then
         DoEmote(emote)

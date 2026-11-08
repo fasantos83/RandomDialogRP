@@ -17,6 +17,7 @@ Use the movable panel to quickly send race-themed dialogue or any custom phrases
 - Choose whether phrases are sent with `/say`, `/yell`, or `/whisper`.
 - Whisper phrases are sent to your current target.
 - Assigns a different emote to every phrase.
+- Avoids immediately repeating a phrase in the same category for a short period when alternatives exist.
 - Create, rename, and delete custom categories.
 - Add, edit, and remove phrases in-game.
 - Choose category icons from Blizzard's macro icon collection.
