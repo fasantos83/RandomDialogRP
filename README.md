@@ -122,7 +122,8 @@ This workspace includes an optional local MCP server for publishing releases to 
 
 5. Restart VS Code and enable the `curseforge-publisher` MCP server.
 
-The addon source files are in the `addon` folder, and the MCP publisher is in
+The addon source files are in the `addon` folder, organized into `core`,
+`ui`, and `localization` modules. The MCP publisher is in
 `tools/curseforge_mcp.py`. Use the `publish_curseforge_release` tool with the
 CurseForge project ID, addon path, version, changelog, release type, and
 optional game-version IDs. The server creates the ZIP locally and never writes

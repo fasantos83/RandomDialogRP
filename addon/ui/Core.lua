@@ -4,8 +4,6 @@
 local currentRace = "Tauren"
 local buttonTexts = {}
 local editBox
-local minimapButton
-local MoveMinimapButton
 local builtinCategories = {
     "greetings", "thanks", "battle", "farewell", "warning", "question",
     "agreement", "disagreement", "celebration", "encouragement", "joke"
@@ -544,7 +542,7 @@ local function RefreshAfterProfileChange()
             RandomDialogRPDB.panel.yOfs
         )
     end
-    if minimapButton and RandomDialogRPDB.minimap then
+    if _G.RandomDialogRPMinimapButton and RandomDialogRPDB.minimap then
         MoveMinimapButton(RandomDialogRPDB.minimap.angle)
     end
     RefreshActionButtons()
@@ -1117,65 +1115,7 @@ local closeBtn = CreateFrame("Button", nil, managerFrame, "UIPanelCloseButton")
 closeBtn:SetPoint("TOPRIGHT", managerFrame, "TOPRIGHT", -2, -2)
 
 -- ============================================================================
--- 3. MINIMAP BUTTON (Aggregator Compatible - MBB)
--- ============================================================================
-minimapButton = CreateFrame("Button", "RandomDialogRPMinimapButton", Minimap)
-minimapButton:SetSize(31, 31)
-minimapButton:SetFrameLevel(Minimap:GetFrameLevel() + 2)
-minimapButton:RegisterForClicks("LeftButtonUp")
-minimapButton:RegisterForDrag("LeftButton")
-
-MoveMinimapButton = function(angle)
-    local rad = math.rad(angle)
-    local x = math.cos(rad) * 80
-    local y = math.sin(rad) * 80
-    minimapButton:SetPoint("CENTER", Minimap, "CENTER", x, y)
-end
-
-local iconTexture = minimapButton:CreateTexture(nil, "BACKGROUND")
-iconTexture:SetSize(20, 20)
-iconTexture:SetPoint("CENTER", minimapButton, "CENTER", 0, 0)
-iconTexture:SetTexture("Interface\\Icons\\Spell_Nature_HealingTouch")
-
-local borderTexture = minimapButton:CreateTexture(nil, "OVERLAY")
-borderTexture:SetSize(53, 53)
-borderTexture:SetPoint("CENTER", minimapButton, "CENTER", 11, -11)
-borderTexture:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
-
-minimapButton:SetScript("OnDragStart", function(self)
-    self:SetScript("OnUpdate", function()
-        local cx, cy = Minimap:GetCenter()
-        local x, y = GetCursorPosition()
-        local scale = UIParent:GetEffectiveScale()
-        x, y = x / scale, y / scale
-        local angle = math.deg(math.atan2(y - cy, x - cx))
-        MoveMinimapButton(angle)
-        RandomDialogRPDB.minimap.angle = angle
-    end)
-end)
-
-minimapButton:SetScript("OnDragStop", function(self)
-    self:SetScript("OnUpdate", nil)
-end)
-
-minimapButton:SetScript("OnClick", function(self, button)
-    if button == "LeftButton" then
-        if frame:IsShown() then frame:Hide() else frame:Show() end
-    end
-end)
-
-minimapButton:SetScript("OnEnter", function(self)
-    GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-    GameTooltip:SetText("RandomDialogRP", 1, 1, 1)
-    GameTooltip:AddLine("Left-click to toggle main panel.", 0.8, 0.8, 0.8)
-    GameTooltip:AddLine("Drag to move around minimap.", 0.8, 0.8, 0.8)
-    GameTooltip:Show()
-end)
-
-minimapButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
-
--- ============================================================================
--- 4. EVENT LISTENER & SLASH COMMANDS
+-- 3. EVENT LISTENER & SLASH COMMANDS
 -- ============================================================================
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
