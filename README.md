@@ -122,8 +122,15 @@ This workspace includes an optional local MCP server for publishing releases to 
 
 5. Restart VS Code and enable the `curseforge-publisher` MCP server.
 
-The addon source files are in the `addon` folder, organized into `core`,
-`ui`, and `localization` modules. The MCP publisher is in
+The addon source files are in the `addon` folder, organized into these modules:
+
+- `localization/Locales.lua`
+- `core/Database.lua`, `core/Profiles.lua`, and `core/Init.lua`
+- `ui/UIHelpers.lua`, `ui/MainPanel.lua`, `ui/PhraseManager.lua`,
+  `ui/ProfileManager.lua`, and `ui/Minimap.lua`
+
+The UI modules share the initialized addon state, while profile persistence is
+owned exclusively by `core/Profiles.lua`. The MCP publisher is in
 `tools/curseforge_mcp.py`. Use the `publish_curseforge_release` tool with the
 CurseForge project ID, addon path, version, changelog, release type, and
 optional game-version IDs. The server creates the ZIP locally and never writes

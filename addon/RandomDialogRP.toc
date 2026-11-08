@@ -2,11 +2,15 @@
 ## Title: RandomDialogRP
 ## Notes: Modular RP addon for World of Warcraft with auto race detection, dynamic phrase manager, editing, and localization.
 ## Author: Brahnoth
-## Version: 3.1.9
+## Version: 3.1.10
 ## SavedVariables: RandomDialogRPDB, RandomDialogRP_CustomDB
 
 localization\Locales.lua
 core\Database.lua
 core\Profiles.lua
-ui\Core.lua
+ui\UIHelpers.lua
+ui\MainPanel.lua
+ui\ProfileManager.lua
+ui\PhraseManager.lua
 ui\Minimap.lua
+core\Init.lua
