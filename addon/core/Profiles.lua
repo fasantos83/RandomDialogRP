@@ -26,7 +26,8 @@ function RandomDialogRP_Profiles.EnsureStore()
         local legacySettings = {
             panel = RandomDialogRPDB.panel,
             minimap = RandomDialogRPDB.minimap,
-            language = RandomDialogRPDB.language
+            language = RandomDialogRPDB.language,
+            chatChannel = RandomDialogRPDB.chatChannel
         }
         RandomDialogRPDB.profiles = {
             Default = {
@@ -64,12 +65,14 @@ function RandomDialogRP_Profiles.Activate(profileName)
     profile.settings.panel = profile.settings.panel or { point = "CENTER", relativePoint = "CENTER", xOfs = 0, yOfs = -100 }
     profile.settings.minimap = profile.settings.minimap or { angle = 45 }
     profile.settings.language = profile.settings.language or "enUS"
+    profile.settings.chatChannel = profile.settings.chatChannel or "SAY"
     profile.custom = profile.custom or {}
     profile.name = profile.name or profileName
     RandomDialogRPDB.activeProfile = profileName
     RandomDialogRPDB.panel = profile.settings.panel
     RandomDialogRPDB.minimap = profile.settings.minimap
     RandomDialogRPDB.language = profile.settings.language
+    RandomDialogRPDB.chatChannel = profile.settings.chatChannel
     RandomDialogRP_CustomDB = profile.custom
     return true
 end
@@ -95,6 +98,7 @@ function RandomDialogRP_Profiles.SaveActive()
         profile.settings.panel = RandomDialogRPDB.panel
         profile.settings.minimap = RandomDialogRPDB.minimap
         profile.settings.language = RandomDialogRPDB.language
+        profile.settings.chatChannel = RandomDialogRPDB.chatChannel
         profile.custom = RandomDialogRP_CustomDB
     end
 end

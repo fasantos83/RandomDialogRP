@@ -12,7 +12,10 @@ Use the movable panel to quickly send race-themed dialogue or any custom phrases
 - Provides four starting phrases in every default category for every supported race.
 - Sends phrases through `/say`.
 - Automatically inserts your target's name with the `%s` placeholder.
+- The `%s` placeholder uses the target's first name only.
 - Uses `friend` when no target is selected.
+- Choose whether phrases are sent with `/say`, `/yell`, or `/whisper`.
+- Whisper phrases are sent to your current target.
 - Assigns a different emote to every phrase.
 - Create, rename, and delete custom categories.
 - Add, edit, and remove phrases in-game.

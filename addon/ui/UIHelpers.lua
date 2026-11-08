@@ -20,6 +20,12 @@ emoteOptions = {
 iconOptions = (GetMacroIcons and GetMacroIcons()) or {}
 if #iconOptions == 0 then iconOptions = { "Interface\\Icons\\INV_Misc_QuestionMark" } end
 
+chatChannels = {
+    { value = "SAY", label = "sayChannel" },
+    { value = "YELL", label = "yellChannel" },
+    { value = "WHISPER", label = "whisperChannel" }
+}
+
 function InitCustomDB()
     RandomDialogRP_CustomDB = RandomDialogRP_CustomDB or {}
     
@@ -117,8 +123,30 @@ function SetPhraseEmote(categoryData, index, emote)
 end
 
 function GetTargetName()
+    if not UnitExists("target") then return "friend" end
+
+    if UnitFullName then
+        local name = UnitFullName("target")
+        if name and name ~= "" then return name end
+    end
+
     local targetName = UnitName("target")
-    return (targetName and targetName ~= "") and targetName or "friend"
+    if not targetName or targetName == "" then return "friend" end
+    return string.match(targetName, "^[^-]+") or targetName
+end
+
+function GetWhisperTarget()
+    if not UnitExists("target") then return nil end
+    if UnitIsPlayer and not UnitIsPlayer("target") then return nil end
+
+    if UnitFullName then
+        local name, realm = UnitFullName("target")
+        if name and name ~= "" then
+            return realm and realm ~= "" and name .. "-" .. realm or name
+        end
+    end
+
+    return UnitName("target")
 end
 
 function ExecuteRP(category)
@@ -134,7 +162,21 @@ function ExecuteRP(category)
     local target = GetTargetName()
     local formattedPhrase = string.format(basePhrase, target)
     
-    SendChatMessage(formattedPhrase, "SAY")
+    local channel = RandomDialogRPDB.chatChannel or "SAY"
+    if channel == "WHISPER" then
+        local targetName = GetWhisperTarget()
+        if not targetName or targetName == "" then
+            if UnitExists("target") then
+                print("|cFFFF0000[RandomDialogRP]|r " .. L("whisperPlayerRequired"))
+            else
+                print("|cFFFF0000[RandomDialogRP]|r " .. L("whisperTargetRequired"))
+            end
+            return
+        end
+        SendChatMessage(formattedPhrase, "WHISPER", nil, targetName)
+    else
+        SendChatMessage(formattedPhrase, channel)
+    end
     local emote = GetPhraseEmote(phrase, raceData)
     if emote then
         DoEmote(emote)

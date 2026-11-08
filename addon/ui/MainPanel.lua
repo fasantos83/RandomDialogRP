@@ -1,6 +1,6 @@
 -- Main panel UI.
 frame = CreateFrame("Frame", "RandomDialogRPFrame", UIParent, "BackdropTemplate")
-frame:SetSize(330, 215)
+frame:SetSize(390, 215)
 frame:SetMovable(true)
 frame:EnableMouse(true)
 frame:SetClampedToScreen(true)
@@ -12,6 +12,8 @@ frame:SetBackdrop({
     tile = true, tileSize = 32, edgeSize = 16,
     insets = { left = 4, right = 4, top = 4, bottom = 4 }
 })
+frame:SetBackdropColor(0, 0, 0, 0.75)
+frame:SetBackdropBorderColor(0.65, 0.65, 0.65, 1)
 
 frame:RegisterForDrag("LeftButton")
 frame:SetScript("OnDragStart", frame.StartMoving)
@@ -30,8 +32,50 @@ title:SetText("RandomDialogRP")
 
 -- Race Dropdown
 dropDown = CreateFrame("Frame", "RandomDialogRPRaceDropDown", frame, "UIDropDownMenuTemplate")
-dropDown:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, -28)
-UIDropDownMenu_SetWidth(dropDown, 145)
+dropDown:SetPoint("TOPLEFT", frame, "TOPLEFT", 26, -38)
+UIDropDownMenu_SetWidth(dropDown, 110)
+
+-- Chat channel dropdown
+chatChannelDropDown = CreateFrame("Frame", "RandomDialogRPChatChannelDropDown", frame, "UIDropDownMenuTemplate")
+chatChannelDropDown:SetPoint("TOPLEFT", frame, "TOPLEFT", 182, -38)
+UIDropDownMenu_SetWidth(chatChannelDropDown, 95)
+
+function ChatChannelDropDown_OnClick(self)
+    RandomDialogRPDB.chatChannel = self.value
+    UIDropDownMenu_SetSelectedValue(chatChannelDropDown, self.value)
+    for _, option in ipairs(chatChannels) do
+        if option.value == self.value then
+            UIDropDownMenu_SetText(chatChannelDropDown, L(option.label))
+            break
+        end
+    end
+    RandomDialogRP_Profiles.SaveActive()
+end
+
+function ChatChannelDropDown_Initialize(self, level)
+    for _, channel in ipairs(chatChannels) do
+        local info = UIDropDownMenu_CreateInfo()
+        info.text = L(channel.label)
+        info.value = channel.value
+        info.label = channel.label
+        info.func = ChatChannelDropDown_OnClick
+        info.checked = (RandomDialogRPDB.chatChannel == channel.value)
+        UIDropDownMenu_AddButton(info, level)
+    end
+end
+
+UIDropDownMenu_Initialize(chatChannelDropDown, ChatChannelDropDown_Initialize)
+
+function RefreshChatChannelDropDown()
+    local channel = RandomDialogRPDB.chatChannel or "SAY"
+    UIDropDownMenu_SetSelectedValue(chatChannelDropDown, channel)
+    for _, option in ipairs(chatChannels) do
+        if option.value == channel then
+            UIDropDownMenu_SetText(chatChannelDropDown, L(option.label))
+            break
+        end
+    end
+end
 
 DropDown_OnClick = nil
 
@@ -93,15 +137,21 @@ function RefreshActionButtons()
         local column = (index - 1) % 2
         local row = math.floor((index - 1) / 2)
         local posX = column == 0 and -78 or 78
-        local button = CreateActionButton(category, posX, -60 - (row * 30))
+        local button = CreateActionButton(category, posX, -70 - (row * 30))
         button:Show()
     end
 end
 
 -- Config/Settings Gear Button
+closeBtn = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
+closeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -6, -6)
+closeBtn:SetScript("OnClick", function()
+    frame:Hide()
+end)
+
 configBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 configBtn:SetSize(24, 24)
-configBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -6, -6)
+configBtn:SetPoint("RIGHT", closeBtn, "LEFT", -4, 0)
 configBtn:SetText("")
 
 configIcon = configBtn:CreateTexture(nil, "ARTWORK")

@@ -13,6 +13,8 @@ managerFrame:SetBackdrop({
     tile = true, tileSize = 32, edgeSize = 16,
     insets = { left = 4, right = 4, top = 4, bottom = 4 }
 })
+managerFrame:SetBackdropColor(0, 0, 0, 0.75)
+managerFrame:SetBackdropBorderColor(0.65, 0.65, 0.65, 1)
 
 managerFrame:RegisterForDrag("LeftButton")
 managerFrame:SetScript("OnDragStart", managerFrame.StartMoving)
@@ -54,6 +56,8 @@ profileFrame:SetBackdrop({
     tile = true, tileSize = 32, edgeSize = 16,
     insets = { left = 4, right = 4, top = 4, bottom = 4 }
 })
+profileFrame:SetBackdropColor(0, 0, 0, 0.75)
+profileFrame:SetBackdropBorderColor(0.65, 0.65, 0.65, 1)
 profileFrame:RegisterForDrag("LeftButton")
 profileFrame:SetScript("OnDragStart", profileFrame.StartMoving)
 profileFrame:SetScript("OnDragStop", profileFrame.StopMovingOrSizing)
@@ -140,6 +144,7 @@ end
 
 function RefreshAfterProfileChange()
     InitCustomDB()
+    RefreshChatChannelDropDown()
     selectedCategory = "greetings"
     editingIndex = nil
     if editBox then editBox:SetText("") end

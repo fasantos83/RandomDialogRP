@@ -57,6 +57,7 @@ function LangDropDown_OnClick(self)
     RandomDialogRPDB.language = self.value
     UIDropDownMenu_SetSelectedValue(langDropDown, RandomDialogRPDB.language)
     UIDropDownMenu_SetText(langDropDown, RandomDialogRPDB.language == "ptBR" and "Português" or "English")
+    RefreshChatChannelDropDown()
     RefreshManagerUI()
 end
 
@@ -113,6 +114,8 @@ function CreateEmoteSelector(parent, categoryData, phrases, phraseIndex)
         tile = true, tileSize = 32, edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
+    popup:SetBackdropColor(0, 0, 0, 0.75)
+    popup:SetBackdropBorderColor(0.65, 0.65, 0.65, 1)
     popup:Hide()
 
     local scroll = CreateFrame("ScrollFrame", nil, popup, "UIPanelScrollFrameTemplate")
@@ -182,6 +185,8 @@ function CreateIconSelector()
         tile = true, tileSize = 32, edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
+    popup:SetBackdropColor(0, 0, 0, 0.75)
+    popup:SetBackdropBorderColor(0.65, 0.65, 0.65, 1)
     popup:Hide()
 
     local scroll = CreateFrame("ScrollFrame", nil, popup, "UIPanelScrollFrameTemplate")
@@ -262,16 +267,16 @@ RefreshManagerUI = function()
         
         local txt = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         txt:SetPoint("LEFT", row, "LEFT", 0, 0)
-        txt:SetSize(260, 26)
+        txt:SetSize(300, 26)
         txt:SetJustifyH("LEFT")
         txt:SetText(idx .. ". " .. phraseText)
 
         local emoteDropDown = CreateEmoteSelector(row, categoryData, phrases, idx)
-        emoteDropDown:SetPoint("LEFT", row, "LEFT", 270, 0)
+        emoteDropDown:SetPoint("LEFT", row, "LEFT", 310, 0)
         
         local editRowBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
         editRowBtn:SetSize(40, 18)
-        editRowBtn:SetPoint("RIGHT", row, "RIGHT", -85, 0)
+        editRowBtn:SetPoint("RIGHT", row, "RIGHT", -60, 0)
         editRowBtn:SetText(L("editBtn"))
         
         editRowBtn:SetScript("OnClick", function()
@@ -283,7 +288,7 @@ RefreshManagerUI = function()
         
         local delBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
         delBtn:SetSize(40, 18)
-        delBtn:SetPoint("RIGHT", row, "RIGHT", -40, 0)
+        delBtn:SetPoint("RIGHT", row, "RIGHT", -10, 0)
         delBtn:SetText(L("delBtn"))
         
         delBtn:SetScript("OnClick", function()
@@ -445,7 +450,7 @@ StaticPopupDialogs["RANDOMDIALOGRP_RESET_CONFIRM"] = {
 
 resetDataBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 resetDataBtn:SetSize(140, 24)
-resetDataBtn:SetPoint("BOTTOM", managerFrame, "BOTTOM", -160, 15)
+resetDataBtn:SetPoint("BOTTOM", managerFrame, "BOTTOM", -80, 15)
 resetDataBtn:SetText(L("resetBtn"))
 resetDataBtn:SetScript("OnClick", function()
     StaticPopup_Show("RANDOMDIALOGRP_RESET_CONFIRM")
@@ -453,7 +458,7 @@ end)
 
 saveReloadBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 saveReloadBtn:SetSize(140, 24)
-saveReloadBtn:SetPoint("BOTTOM", managerFrame, "BOTTOM", 0, 15)
+saveReloadBtn:SetPoint("BOTTOM", managerFrame, "BOTTOM", 80, 15)
 saveReloadBtn:SetText(L("saveReloadBtn"))
 saveReloadBtn:SetScript("OnClick", function()
     ReloadUI()

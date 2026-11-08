@@ -25,6 +25,7 @@ function InitializeAddon()
 
     UIDropDownMenu_SetSelectedValue(dropDown, currentRace)
     UIDropDownMenu_SetText(dropDown, currentRace)
+    RefreshChatChannelDropDown()
     EnsureSelectedCategory()
     RefreshActionButtons()
 
