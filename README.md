@@ -110,7 +110,8 @@ The exact World of Warcraft folder may differ depending on the client installati
 
 Pushing a version tag such as `3.1.22` runs the GitHub Actions release workflow.
 It packages the addon from the `addon` directory, uploads it to the Wago project
-identified by `X-Wago-ID` in the TOC, and creates a GitHub release.
+identified by `X-Wago-ID` in the TOC, and creates a GitHub release. The root
+`.pkgmeta` configures the packager to place the addon files at the archive root.
 
 Before the first release, add a Wago API token as the repository Actions secret
 `WAGO_API_TOKEN` under **Settings > Secrets and variables > Actions**. The

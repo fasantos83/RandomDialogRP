@@ -2,7 +2,7 @@
 ## Title: RandomDialogRP
 ## Notes: Modular RP addon for World of Warcraft with auto race detection, dynamic phrase manager, editing, and localization.
 ## Author: Brahnoth
-## Version: 3.1.21
+## Version: 3.1.22
 ## SavedVariables: RandomDialogRPDB, RandomDialogRP_CustomDB
 ## X-Wago-ID: as3Dfg57
 

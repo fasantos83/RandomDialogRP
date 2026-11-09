@@ -1,0 +1,10 @@
+package-as: RandomDialogRP
+
+move-folders:
+  RandomDialogRP/addon: RandomDialogRP
+
+ignore:
+  - releases
+  - tools
+  - requirements-mcp.txt
+  - README.md

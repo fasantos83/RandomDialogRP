@@ -22,5 +22,3 @@ jobs:
 
       - name: Package and publish to Wago
         uses: BigWigsMods/packager@v2
-        with:
-          args: -t addon
