@@ -106,6 +106,28 @@ The exact World of Warcraft folder may differ depending on the client installati
 | `/rp config` | Open the phrase manager |
 | `/rp edit` | Open the phrase manager |
 
+## Automated Releases
+
+Pushing a version tag such as `3.1.22` runs the GitHub Actions release workflow.
+It packages the addon from the `addon` directory, uploads it to the Wago project
+identified by `X-Wago-ID` in the TOC, and creates a GitHub release.
+
+Before the first release, add a Wago API token as the repository Actions secret
+`WAGO_API_TOKEN` under **Settings > Secrets and variables > Actions**. The
+workflow uses GitHub's automatically provided token to create the release; its
+permissions are declared in the workflow.
+
+For each release, update `## Version` in `addon/RandomDialogRP.toc`, commit the
+change, then create and push an annotated tag with the exact same version. For
+example:
+
+```powershell
+git tag -a 3.1.22 -m "3.1.22"
+git push origin 3.1.22
+```
+
+The workflow needs the full Git history to generate release changelogs.
+
 ## Optional CurseForge Publishing MCP
 
 This workspace includes an optional local MCP server for publishing releases to CurseForge.
