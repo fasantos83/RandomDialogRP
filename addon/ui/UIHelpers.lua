@@ -4,7 +4,7 @@ RandomDialogRP_UI = RandomDialogRP_UI or {}
 
 local responsiveFrames = {}
 
-local function RefreshResponsiveFrames()
+function RandomDialogRP_UI.RefreshResponsiveFrames()
     local availableWidth = UIParent:GetWidth() - 40
     local availableHeight = UIParent:GetHeight() - 40
     if availableWidth <= 0 or availableHeight <= 0 then return end
@@ -21,10 +21,10 @@ end
 
 function RegisterResponsiveFrame(frame)
     table.insert(responsiveFrames, frame)
-    RefreshResponsiveFrames()
+    RandomDialogRP_UI.RefreshResponsiveFrames()
 end
 
-UIParent:HookScript("OnSizeChanged", RefreshResponsiveFrames)
+UIParent:HookScript("OnSizeChanged", RandomDialogRP_UI.RefreshResponsiveFrames)
 
 currentRace = "Tauren"
 buttonTexts = {}

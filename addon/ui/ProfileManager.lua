@@ -29,7 +29,6 @@ editingIndex = nil
 selectedManagerTab = "phrases"
 RefreshManagerUI = nil
 resetDataBtn = nil
-profileFrame = nil
 profileDropDown = nil
 profileNameBox = nil
 selectedProfileName = nil
@@ -44,36 +43,22 @@ function EnsureSelectedCategory()
     editingIndex = nil
 end
 
-profileFrame = CreateFrame("Frame", "RandomDialogRPProfiles", UIParent, "BackdropTemplate")
-profileFrame:SetSize(380, 260)
-profileFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-profileFrame:SetMovable(true)
-profileFrame:EnableMouse(true)
-profileFrame:SetClampedToScreen(true)
-profileFrame:Hide()
-profileFrame:SetBackdrop({
-    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-    tile = true, tileSize = 32, edgeSize = 16,
-    insets = { left = 4, right = 4, top = 4, bottom = 4 }
-})
-profileFrame:SetBackdropColor(0, 0, 0, 0.75)
-profileFrame:SetBackdropBorderColor(0.65, 0.65, 0.65, 1)
-profileFrame:RegisterForDrag("LeftButton")
-profileFrame:SetScript("OnDragStart", profileFrame.StartMoving)
-profileFrame:SetScript("OnDragStop", profileFrame.StopMovingOrSizing)
-
 RegisterResponsiveFrame(managerFrame)
-RegisterResponsiveFrame(profileFrame)
 
-profileTitle = profileFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-profileTitle:SetPoint("TOP", profileFrame, "TOP", 0, -10)
+profileTitle = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+profileTitle:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -141)
 
-currentProfileText = profileFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-currentProfileText:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", 20, -45)
+profileSectionDivider = managerFrame:CreateTexture(nil, "ARTWORK")
+profileSectionDivider:SetColorTexture(0.65, 0.65, 0.65, 0.55)
+profileSectionDivider:SetHeight(1)
+profileSectionDivider:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 16, -130)
+profileSectionDivider:SetPoint("TOPRIGHT", managerFrame, "TOPRIGHT", -16, -130)
 
-profileDropDown = CreateFrame("Frame", "RandomDialogRPProfileDropDown", profileFrame, "UIDropDownMenuTemplate")
-profileDropDown:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", 12, -65)
+currentProfileText = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+currentProfileText:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -168)
+
+profileDropDown = CreateFrame("Frame", "RandomDialogRPProfileDropDown", managerFrame, "UIDropDownMenuTemplate")
+profileDropDown:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 10, -175)
 UIDropDownMenu_SetWidth(profileDropDown, 210)
 
 function ProfileDropDown_OnClick(self)
@@ -94,32 +79,32 @@ function ProfileDropDown_Initialize(self, level)
 end
 UIDropDownMenu_Initialize(profileDropDown, ProfileDropDown_Initialize)
 
-profileNameBox = CreateFrame("EditBox", nil, profileFrame, "InputBoxTemplate")
+profileNameBox = CreateFrame("EditBox", nil, managerFrame, "InputBoxTemplate")
 profileNameBox:SetSize(210, 22)
-profileNameBox:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", 20, -115)
+profileNameBox:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -222)
 profileNameBox:SetAutoFocus(false)
 
-profileHelpText = profileFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+profileHelpText = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 profileHelpText:SetPoint("TOPLEFT", profileNameBox, "BOTTOMLEFT", 0, -4)
 profileHelpText:SetText("")
 
-createProfileBtn = CreateFrame("Button", nil, profileFrame, "UIPanelButtonTemplate")
+createProfileBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 createProfileBtn:SetSize(75, 24)
-createProfileBtn:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", 20, -155)
+createProfileBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -262)
 
-saveProfileBtn = CreateFrame("Button", nil, profileFrame, "UIPanelButtonTemplate")
+saveProfileBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 saveProfileBtn:SetSize(75, 24)
 saveProfileBtn:SetPoint("LEFT", createProfileBtn, "RIGHT", 6, 0)
 
-loadProfileBtn = CreateFrame("Button", nil, profileFrame, "UIPanelButtonTemplate")
+loadProfileBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 loadProfileBtn:SetSize(75, 24)
 loadProfileBtn:SetPoint("LEFT", saveProfileBtn, "RIGHT", 6, 0)
 
-renameProfileBtn = CreateFrame("Button", nil, profileFrame, "UIPanelButtonTemplate")
+renameProfileBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 renameProfileBtn:SetSize(75, 24)
-renameProfileBtn:SetPoint("TOPLEFT", profileFrame, "TOPLEFT", 20, -190)
+renameProfileBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -294)
 
-deleteProfileBtn = CreateFrame("Button", nil, profileFrame, "UIPanelButtonTemplate")
+deleteProfileBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 deleteProfileBtn:SetSize(75, 24)
 deleteProfileBtn:SetPoint("LEFT", renameProfileBtn, "RIGHT", 6, 0)
 
@@ -263,16 +248,5 @@ StaticPopupDialogs["RANDOMDIALOGRP_DELETE_PROFILE_CONFIRM"] = {
         print("|cFF00FF00[RandomDialogRP]|r " .. L("profileDeleted"))
     end
 }
-
-profileCloseBtn = CreateFrame("Button", nil, profileFrame, "UIPanelCloseButton")
-profileCloseBtn:SetPoint("TOPRIGHT", profileFrame, "TOPRIGHT", -2, -2)
-profileBtn:SetScript("OnClick", function()
-    if profileFrame:IsShown() then
-        profileFrame:Hide()
-    else
-        RefreshProfileUI()
-        profileFrame:Show()
-    end
-end)
 
 -- Category Dropdown

@@ -157,7 +157,7 @@ function RefreshActionButtons()
     local categories = GetCategories(currentRace)
     local rowCount = math.ceil(#categories / 2)
     frame:SetHeight(math.max(225, 112 + (rowCount * 30)))
-    RefreshResponsiveFrames()
+    RandomDialogRP_UI.RefreshResponsiveFrames()
     for index, category in ipairs(categories) do
         local column = (index - 1) % 2
         local row = math.floor((index - 1) / 2)
@@ -190,17 +190,6 @@ configBtn:SetScript("OnEnter", function(self)
     GameTooltip:Show()
 end)
 configBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
-
-profileBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-profileBtn:SetSize(82, 24)
-profileBtn:SetPoint("RIGHT", configBtn, "LEFT", -4, 0)
-profileBtn:SetText(L("profileBtn"))
-profileBtn:SetScript("OnEnter", function(self)
-    GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-    GameTooltip:SetText(L("profileTitle"), 1, 1, 1)
-    GameTooltip:Show()
-end)
-profileBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 -- ============================================================================
 -- 2. PHRASE MANAGER UI

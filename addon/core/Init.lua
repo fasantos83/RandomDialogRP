@@ -53,7 +53,9 @@ end)
 SLASH_RANDOMDIALOGRP1 = "/rp"
 SlashCmdList["RANDOMDIALOGRP"] = function(msg)
     msg = string.lower(msg or "")
-    if msg == "config" or msg == "edit" then
+    if msg == "reset" then
+        ShowResetConfirmation()
+    elseif msg == "config" or msg == "edit" then
         RefreshManagerUI()
         managerFrame:Show()
     elseif frame:IsShown() then

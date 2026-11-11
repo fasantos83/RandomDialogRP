@@ -189,6 +189,17 @@ function SetManagerTab(tab)
     categoryIconBtn:SetShown(showCategories)
     languageSectionLabel:SetShown(showSettings)
     langDropDown:SetShown(showSettings)
+    profileSectionDivider:SetShown(showSettings)
+    profileTitle:SetShown(showSettings)
+    currentProfileText:SetShown(showSettings)
+    profileDropDown:SetShown(showSettings)
+    profileNameBox:SetShown(showSettings)
+    profileHelpText:SetShown(showSettings)
+    createProfileBtn:SetShown(showSettings)
+    saveProfileBtn:SetShown(showSettings)
+    loadProfileBtn:SetShown(showSettings)
+    renameProfileBtn:SetShown(showSettings)
+    deleteProfileBtn:SetShown(showSettings)
 
     for _, tab in ipairs({ phraseTab, categoryTab, settingsTab }) do
         local selected = tab == phraseTab and showPhrases
@@ -198,6 +209,10 @@ function SetManagerTab(tab)
             and "Interface\\OptionsFrame\\UI-OptionsFrame-ActiveTab"
             or "Interface\\OptionsFrame\\UI-OptionsFrame-InactiveTab")
         tab.label:SetFontObject(selected and GameFontNormalSmall or GameFontDisableSmall)
+    end
+
+    if showSettings and RefreshProfileUI then
+        RefreshProfileUI()
     end
 end
 
@@ -636,13 +651,17 @@ StaticPopupDialogs["RANDOMDIALOGRP_RESET_CONFIRM"] = {
     end
 }
 
+function ShowResetConfirmation()
+    if not StaticPopup_Show("RANDOMDIALOGRP_RESET_CONFIRM") then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("resetDialogUnavailable"))
+    end
+end
+
 resetDataBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 resetDataBtn:SetSize(140, 24)
 resetDataBtn:SetPoint("BOTTOM", managerFrame, "BOTTOM", -80, 15)
 resetDataBtn:SetText(L("resetBtn"))
-resetDataBtn:SetScript("OnClick", function()
-    StaticPopup_Show("RANDOMDIALOGRP_RESET_CONFIRM")
-end)
+resetDataBtn:SetScript("OnClick", ShowResetConfirmation)
 
 saveReloadBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 saveReloadBtn:SetSize(140, 24)

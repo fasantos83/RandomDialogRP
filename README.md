@@ -105,10 +105,11 @@ The exact World of Warcraft folder may differ depending on the client installati
 | `/rp` | Show or hide the main panel |
 | `/rp config` | Open the phrase manager |
 | `/rp edit` | Open the phrase manager |
+| `/rp reset` | Open the reset confirmation |
 
 ## Automated Releases
 
-Pushing a version tag such as `3.1.23` runs the GitHub Actions release workflow.
+Pushing a version tag such as `3.1.24` runs the GitHub Actions release workflow.
 It packages the addon from the `addon` directory, uploads it to the Wago project
 identified by `X-Wago-ID` in the TOC, and creates a GitHub release. The root
 `.pkgmeta` configures the packager to place the addon files at the archive root.
@@ -123,8 +124,8 @@ change, then create and push an annotated tag with the exact same version. For
 example:
 
 ```powershell
-git tag -a 3.1.23 -m "3.1.23"
-git push origin 3.1.23
+git tag -a 3.1.24 -m "3.1.24"
+git push origin 3.1.24
 ```
 
 The workflow needs the full Git history to generate release changelogs.
