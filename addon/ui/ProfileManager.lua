@@ -26,6 +26,7 @@ managerTitle:SetText(L("managerTitle"))
 
 selectedCategory = "greetings"
 editingIndex = nil
+selectedManagerTab = "phrases"
 RefreshManagerUI = nil
 resetDataBtn = nil
 profileFrame = nil
@@ -61,6 +62,9 @@ profileFrame:SetBackdropBorderColor(0.65, 0.65, 0.65, 1)
 profileFrame:RegisterForDrag("LeftButton")
 profileFrame:SetScript("OnDragStart", profileFrame.StartMoving)
 profileFrame:SetScript("OnDragStop", profileFrame.StopMovingOrSizing)
+
+RegisterResponsiveFrame(managerFrame)
+RegisterResponsiveFrame(profileFrame)
 
 profileTitle = profileFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 profileTitle:SetPoint("TOP", profileFrame, "TOP", 0, -10)
@@ -227,15 +231,38 @@ deleteProfileBtn:SetScript("OnClick", function()
         print("|cFFFF0000[RandomDialogRP]|r " .. L("cannotChangeDefault"))
         return
     end
-    RandomDialogRPDB.profiles[name] = nil
-    if RandomDialogRPDB.activeProfile == name then
-        RandomDialogRP_Profiles.Activate("Default")
-        RefreshAfterProfileChange()
-    end
-    selectedProfileName = "Default"
-    RefreshProfileUI()
-    print("|cFF00FF00[RandomDialogRP]|r " .. L("profileDeleted"))
+    StaticPopup_Show("RANDOMDIALOGRP_DELETE_PROFILE_CONFIRM", nil, nil, name)
 end)
+
+StaticPopupDialogs["RANDOMDIALOGRP_DELETE_PROFILE_CONFIRM"] = {
+    text = "",
+    button1 = YES,
+    button2 = NO,
+    hideOnEscape = true,
+    timeout = 0,
+    whileDead = true,
+    preferredIndex = 3,
+    OnShow = function(dialog)
+        dialog.text:SetFormattedText(L("deleteProfileConfirm"), dialog.data)
+    end,
+    OnAccept = function(_, name)
+        if name == "Default" or not RandomDialogRPDB.profiles[name] then
+            return
+        end
+
+        RandomDialogRPDB.profiles[name] = nil
+        if selectedProfileName == name then
+            selectedProfileName = "Default"
+        end
+        if RandomDialogRPDB.activeProfile == name then
+            RandomDialogRP_Profiles.Activate("Default")
+            RefreshAfterProfileChange()
+        else
+            RefreshProfileUI()
+        end
+        print("|cFF00FF00[RandomDialogRP]|r " .. L("profileDeleted"))
+    end
+}
 
 profileCloseBtn = CreateFrame("Button", nil, profileFrame, "UIPanelCloseButton")
 profileCloseBtn:SetPoint("TOPRIGHT", profileFrame, "TOPRIGHT", -2, -2)

@@ -1,6 +1,31 @@
 -- Shared UI helpers and phrase data access.
 RandomDialogRP = RandomDialogRP or {}
 RandomDialogRP_UI = RandomDialogRP_UI or {}
+
+local responsiveFrames = {}
+
+local function RefreshResponsiveFrames()
+    local availableWidth = UIParent:GetWidth() - 40
+    local availableHeight = UIParent:GetHeight() - 40
+    if availableWidth <= 0 or availableHeight <= 0 then return end
+
+    for _, responsiveFrame in ipairs(responsiveFrames) do
+        local scale = math.min(
+            1,
+            availableWidth / responsiveFrame:GetWidth(),
+            availableHeight / responsiveFrame:GetHeight()
+        )
+        responsiveFrame:SetScale(scale)
+    end
+end
+
+function RegisterResponsiveFrame(frame)
+    table.insert(responsiveFrames, frame)
+    RefreshResponsiveFrames()
+end
+
+UIParent:HookScript("OnSizeChanged", RefreshResponsiveFrames)
+
 currentRace = "Tauren"
 buttonTexts = {}
 editBox = nil

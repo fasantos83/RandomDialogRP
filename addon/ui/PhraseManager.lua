@@ -1,13 +1,28 @@
 -- Phrase manager UI.
 catDropDown = CreateFrame("Frame", "RandomDialogRPCatDropDown", managerFrame, "UIDropDownMenuTemplate")
-catDropDown:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 10, -35)
+catDropDown:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 10, -85)
 UIDropDownMenu_SetWidth(catDropDown, 120)
+
+categorySectionLabel = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+categorySectionLabel:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -75)
+
+phraseSearchLabel = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+phraseSearchLabel:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 188, -75)
+
+phraseSearchBox = CreateFrame("EditBox", nil, managerFrame, "InputBoxTemplate")
+phraseSearchBox:SetSize(300, 20)
+phraseSearchBox:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 186, -85)
+phraseSearchBox:SetAutoFocus(false)
+
+categoryNameFieldLabel = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+categoryNameFieldLabel:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -119)
 
 function CatDropDown_OnClick(self)
     selectedCategory = self.value
     UIDropDownMenu_SetSelectedValue(catDropDown, selectedCategory)
     UIDropDownMenu_SetText(catDropDown, GetCategoryLabel(selectedCategory))
     editingIndex = nil
+    editBox:SetText("")
     RefreshManagerUI()
 end
 
@@ -25,16 +40,16 @@ UIDropDownMenu_Initialize(catDropDown, CatDropDown_Initialize)
 
 categoryNameBox = CreateFrame("EditBox", nil, managerFrame, "InputBoxTemplate")
 categoryNameBox:SetSize(150, 20)
-categoryNameBox:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 18, -80)
+categoryNameBox:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 18, -133)
 categoryNameBox:SetAutoFocus(false)
 
 addCategoryBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 addCategoryBtn:SetSize(65, 22)
-addCategoryBtn:SetPoint("LEFT", catDropDown, "RIGHT", 0, 0)
+addCategoryBtn:SetPoint("LEFT", categoryNameBox, "RIGHT", 6, 0)
 
 renameCategoryBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 renameCategoryBtn:SetSize(70, 22)
-renameCategoryBtn:SetPoint("LEFT", categoryNameBox, "RIGHT", 6, 0)
+renameCategoryBtn:SetPoint("LEFT", addCategoryBtn, "RIGHT", 4, 0)
 
 deleteCategoryBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 deleteCategoryBtn:SetSize(60, 22)
@@ -48,15 +63,18 @@ categoryIcon = categoryIconBtn:CreateTexture(nil, "ARTWORK")
 categoryIcon:SetSize(18, 18)
 categoryIcon:SetPoint("CENTER")
 
--- Language Dropdown (Defaults to English)
+languageSectionLabel = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+languageSectionLabel:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -75)
+
 langDropDown = CreateFrame("Frame", "RandomDialogRPLangDropDown", managerFrame, "UIDropDownMenuTemplate")
-langDropDown:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 400, -35)
+langDropDown:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 10, -85)
 UIDropDownMenu_SetWidth(langDropDown, 110)
 
 function LangDropDown_OnClick(self)
     RandomDialogRPDB.language = self.value
     UIDropDownMenu_SetSelectedValue(langDropDown, RandomDialogRPDB.language)
     UIDropDownMenu_SetText(langDropDown, RandomDialogRPDB.language == "ptBR" and "Português" or "English")
+    RefreshMainPanelLabels()
     RefreshChatChannelDropDown()
     RefreshManagerUI()
 end
@@ -80,25 +98,116 @@ UIDropDownMenu_Initialize(langDropDown, LangDropDown_Initialize)
 
 -- Input EditBox
 editBox = CreateFrame("EditBox", nil, managerFrame, "InputBoxTemplate")
-editBox:SetSize(250, 20)
-editBox:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 18, -110)
+editBox:SetSize(300, 20)
+editBox:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 18, -130)
 editBox:SetAutoFocus(false)
+
+phraseEntryLabel = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+phraseEntryLabel:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -119)
 
 actionBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 actionBtn:SetSize(75, 22)
 actionBtn:SetPoint("LEFT", editBox, "RIGHT", 10, 0)
 actionBtn:SetText(L("addBtn"))
 
+cancelEditBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
+cancelEditBtn:SetSize(70, 22)
+cancelEditBtn:SetPoint("LEFT", actionBtn, "RIGHT", 4, 0)
+cancelEditBtn:SetText(L("cancelBtn"))
+cancelEditBtn:Hide()
+
 -- Scrollable List
 scrollFrame = CreateFrame("ScrollFrame", "RandomDialogRPScrollFrame", managerFrame, "UIPanelScrollFrameTemplate")
 scrollFrame:SetSize(500, 220)
-scrollFrame:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 15, -145)
+scrollFrame:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 15, -165)
 
 scrollContent = CreateFrame("Frame", nil, scrollFrame)
 scrollContent:SetSize(500, 220)
 scrollFrame:SetScrollChild(scrollContent)
 
+phraseListStatus = scrollContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+phraseListStatus:SetPoint("TOPLEFT", scrollContent, "TOPLEFT", 10, -12)
+phraseListStatus:SetWidth(470)
+phraseListStatus:SetJustifyH("CENTER")
+phraseListStatus:Hide()
+
 phraseRows = {}
+
+local function CreateManagerTab()
+    local tab = CreateFrame("Button", nil, managerFrame)
+    tab:SetSize(95, 28)
+
+    tab.background = tab:CreateTexture(nil, "BACKGROUND")
+    tab.background:SetAllPoints()
+
+    local highlight = tab:CreateTexture(nil, "HIGHLIGHT")
+    highlight:SetAllPoints()
+    highlight:SetTexture("Interface\\Buttons\\ButtonHilight-Square")
+    highlight:SetBlendMode("ADD")
+
+    tab.label = tab:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    tab.label:SetPoint("CENTER", tab, "CENTER", 0, 1)
+
+    return tab
+end
+
+phraseTab = CreateManagerTab()
+phraseTab:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 18, -30)
+
+categoryTab = CreateManagerTab()
+categoryTab:SetPoint("LEFT", phraseTab, "RIGHT", 4, 0)
+
+settingsTab = CreateManagerTab()
+settingsTab:SetPoint("LEFT", categoryTab, "RIGHT", 4, 0)
+
+managerSectionDivider = managerFrame:CreateTexture(nil, "ARTWORK")
+managerSectionDivider:SetColorTexture(0.65, 0.65, 0.65, 0.55)
+managerSectionDivider:SetHeight(1)
+managerSectionDivider:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 16, -61)
+managerSectionDivider:SetPoint("TOPRIGHT", managerFrame, "TOPRIGHT", -16, -61)
+
+function SetManagerTab(tab)
+    selectedManagerTab = tab
+    local showPhrases = tab == "phrases"
+    local showCategories = tab == "categories"
+    local showSettings = tab == "settings"
+
+    categorySectionLabel:SetShown(showPhrases or showCategories)
+    catDropDown:SetShown(showPhrases or showCategories)
+    phraseSearchLabel:SetShown(showPhrases)
+    phraseSearchBox:SetShown(showPhrases)
+    categoryNameFieldLabel:SetShown(showCategories)
+    editBox:SetShown(showPhrases)
+    phraseEntryLabel:SetShown(showPhrases)
+    actionBtn:SetShown(showPhrases)
+    cancelEditBtn:SetShown(showPhrases and editingIndex ~= nil)
+    scrollFrame:SetShown(showPhrases)
+    categoryNameBox:SetShown(showCategories)
+    addCategoryBtn:SetShown(showCategories)
+    renameCategoryBtn:SetShown(showCategories)
+    deleteCategoryBtn:SetShown(showCategories)
+    categoryIconBtn:SetShown(showCategories)
+    languageSectionLabel:SetShown(showSettings)
+    langDropDown:SetShown(showSettings)
+
+    for _, tab in ipairs({ phraseTab, categoryTab, settingsTab }) do
+        local selected = tab == phraseTab and showPhrases
+            or tab == categoryTab and showCategories
+            or tab == settingsTab and showSettings
+        tab.background:SetTexture(selected
+            and "Interface\\OptionsFrame\\UI-OptionsFrame-ActiveTab"
+            or "Interface\\OptionsFrame\\UI-OptionsFrame-InactiveTab")
+        tab.label:SetFontObject(selected and GameFontNormalSmall or GameFontDisableSmall)
+    end
+end
+
+phraseTab.label:SetText(L("phrasesTab"))
+categoryTab.label:SetText(L("categoriesTab"))
+settingsTab.label:SetText(L("settingsTab"))
+phraseTab:SetScript("OnClick", function() SetManagerTab("phrases") end)
+categoryTab:SetScript("OnClick", function() SetManagerTab("categories") end)
+settingsTab:SetScript("OnClick", function() SetManagerTab("settings") end)
+SetManagerTab(selectedManagerTab)
 
 function CreateEmoteSelector(parent, categoryData, phrases, phraseIndex)
     local selector = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
@@ -232,15 +341,107 @@ end
 
 CreateIconSelector()
 
+function RefreshPhraseRows()
+    for _, row in ipairs(phraseRows) do row:Hide() end
+    phraseRows = {}
+
+    local categoryData = RandomDialogRP_CustomDB[currentRace]
+        and RandomDialogRP_CustomDB[currentRace][selectedCategory]
+    local phrases = categoryData and categoryData.phrases or {}
+    local query = string.lower(phraseSearchBox:GetText() or "")
+    local yOffset = 0
+    local visibleCount = 0
+
+    for index, phrase in ipairs(phrases) do
+        local phraseText = GetPhraseText(phrase)
+        if query == "" or string.find(string.lower(phraseText), query, 1, true) then
+            local phraseIndex = index
+            local row = CreateFrame("Frame", nil, scrollContent)
+            row:SetWidth(500)
+            row:SetPoint("TOPLEFT", scrollContent, "TOPLEFT", 0, yOffset)
+
+            local text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+            text:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -3)
+            text:SetWidth(295)
+            text:SetWordWrap(true)
+            text:SetJustifyH("LEFT")
+            text:SetJustifyV("MIDDLE")
+            text:SetText(phraseIndex .. ". " .. phraseText)
+
+            local rowHeight = math.max(30, text:GetStringHeight() + 8)
+            row:SetHeight(rowHeight)
+            text:SetHeight(rowHeight - 6)
+
+            local emoteSelector = CreateEmoteSelector(row, categoryData, phrases, phraseIndex)
+            emoteSelector:SetPoint("LEFT", row, "LEFT", 310, 0)
+
+            local editRowBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
+            editRowBtn:SetSize(40, 18)
+            editRowBtn:SetPoint("RIGHT", row, "RIGHT", -60, 0)
+            editRowBtn:SetText(L("editBtn"))
+            editRowBtn:SetScript("OnClick", function()
+                editingIndex = phraseIndex
+                editBox:SetText(phraseText)
+                RefreshManagerUI()
+                editBox:SetFocus()
+            end)
+
+            local delBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
+            delBtn:SetSize(40, 18)
+            delBtn:SetPoint("RIGHT", row, "RIGHT", -10, 0)
+            delBtn:SetText(L("delBtn"))
+            delBtn:SetScript("OnClick", function()
+                table.remove(RandomDialogRP_CustomDB[currentRace][selectedCategory].phrases, phraseIndex)
+                if editingIndex == phraseIndex then
+                    editingIndex = nil
+                    editBox:SetText("")
+                elseif editingIndex and editingIndex > phraseIndex then
+                    editingIndex = editingIndex - 1
+                end
+                RefreshManagerUI()
+                print("|cFF00FF00[RandomDialogRP]|r " .. L("phraseRemoved"))
+            end)
+
+            table.insert(phraseRows, row)
+            visibleCount = visibleCount + 1
+            yOffset = yOffset - rowHeight - 4
+        end
+    end
+
+    if visibleCount == 0 then
+        phraseListStatus:SetText(#phrases == 0 and L("noPhrases") or L("noSearchResults"))
+        phraseListStatus:Show()
+    else
+        phraseListStatus:Hide()
+    end
+    scrollContent:SetHeight(math.max(160, math.abs(yOffset)))
+    scrollFrame:SetVerticalScroll(0)
+end
+
+phraseSearchBox:SetScript("OnTextChanged", RefreshPhraseRows)
+
 RefreshManagerUI = function()
     managerTitle:SetText(L("managerTitle"))
+    phraseTab.label:SetText(L("phrasesTab"))
+    categoryTab.label:SetText(L("categoriesTab"))
+    settingsTab.label:SetText(L("settingsTab"))
+    categorySectionLabel:SetText(L("categoryLabel"))
+    phraseSearchLabel:SetText(L("searchLabel"))
+    categoryNameFieldLabel:SetText(L("categoryName"))
+    phraseEntryLabel:SetText(L("phraseLabel"))
+    languageSectionLabel:SetText(L("languageLabel"))
+    SetManagerTab(selectedManagerTab)
+
     UIDropDownMenu_SetSelectedValue(catDropDown, selectedCategory)
     UIDropDownMenu_SetText(catDropDown, GetCategoryLabel(selectedCategory))
     
     UIDropDownMenu_SetSelectedValue(langDropDown, RandomDialogRPDB.language)
     UIDropDownMenu_SetText(langDropDown, RandomDialogRPDB.language == "ptBR" and "Português" or "English")
     
-    actionBtn:SetText(editingIndex and L("editBtn") or L("addBtn"))
+    phraseEntryLabel:SetText(editingIndex and (L("editingPhrase") .. " " .. editingIndex .. ":") or L("phraseLabel"))
+    actionBtn:SetText(editingIndex and L("updateBtn") or L("addBtn"))
+    cancelEditBtn:SetText(L("cancelBtn"))
+    cancelEditBtn:SetShown(selectedManagerTab == "phrases" and editingIndex ~= nil)
     categoryNameBox:SetText(GetCategoryLabel(selectedCategory))
     categoryIcon:SetTexture(GetCategoryIcon(selectedCategory))
     addCategoryBtn:SetText(L("addCategoryBtn"))
@@ -252,56 +453,7 @@ RefreshManagerUI = function()
         data.btn:SetText(GetCategoryLabel(cat))
     end
 
-    for _, row in ipairs(phraseRows) do row:Hide() end
-    phraseRows = {}
-    
-    local phrases = RandomDialogRP_CustomDB[currentRace] and RandomDialogRP_CustomDB[currentRace][selectedCategory] and RandomDialogRP_CustomDB[currentRace][selectedCategory].phrases or {}
-    
-    local yOffset = 0
-    local categoryData = RandomDialogRP_CustomDB[currentRace] and RandomDialogRP_CustomDB[currentRace][selectedCategory]
-    for idx, phrase in ipairs(phrases) do
-        local phraseText = GetPhraseText(phrase)
-        local row = CreateFrame("Frame", nil, scrollContent)
-        row:SetSize(500, 30)
-        row:SetPoint("TOPLEFT", scrollContent, "TOPLEFT", 0, yOffset)
-        
-        local txt = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-        txt:SetPoint("LEFT", row, "LEFT", 0, 0)
-        txt:SetSize(300, 26)
-        txt:SetJustifyH("LEFT")
-        txt:SetText(idx .. ". " .. phraseText)
-
-        local emoteDropDown = CreateEmoteSelector(row, categoryData, phrases, idx)
-        emoteDropDown:SetPoint("LEFT", row, "LEFT", 310, 0)
-        
-        local editRowBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
-        editRowBtn:SetSize(40, 18)
-        editRowBtn:SetPoint("RIGHT", row, "RIGHT", -60, 0)
-        editRowBtn:SetText(L("editBtn"))
-        
-        editRowBtn:SetScript("OnClick", function()
-            editingIndex = idx
-            editBox:SetText(phraseText)
-            editBox:SetFocus()
-            RefreshManagerUI()
-        end)
-        
-        local delBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
-        delBtn:SetSize(40, 18)
-        delBtn:SetPoint("RIGHT", row, "RIGHT", -10, 0)
-        delBtn:SetText(L("delBtn"))
-        
-        delBtn:SetScript("OnClick", function()
-            table.remove(RandomDialogRP_CustomDB[currentRace][selectedCategory].phrases, idx)
-            if editingIndex == idx then editingIndex = nil; editBox:SetText("") end
-            RefreshManagerUI()
-            print("|cFF00FF00[RandomDialogRP]|r " .. L("phraseRemoved"))
-        end)
-        
-        table.insert(phraseRows, row)
-        yOffset = yOffset - 32
-    end
-    scrollContent:SetHeight(math.max(160, math.abs(yOffset)))
+    RefreshPhraseRows()
 end
 
 function GetEnteredCategoryName()
@@ -368,17 +520,10 @@ deleteCategoryBtn:SetScript("OnClick", function()
         print("|cFFFF0000[RandomDialogRP]|r " .. L("cannotDeleteCategory"))
         return
     end
-    local raceData = RandomDialogRP_CustomDB[currentRace]
-    raceData[selectedCategory] = nil
-    for index, category in ipairs(raceData.categoryOrder) do
-        if category == selectedCategory then table.remove(raceData.categoryOrder, index); break end
-    end
-    selectedCategory = GetCategories(currentRace)[1]
-    editingIndex = nil
-    editBox:SetText("")
-    RefreshActionButtons()
-    RefreshManagerUI()
-    print("|cFF00FF00[RandomDialogRP]|r " .. L("categoryRemoved"))
+    StaticPopup_Show("RANDOMDIALOGRP_DELETE_CATEGORY_CONFIRM", nil, nil, {
+        race = currentRace,
+        category = selectedCategory
+    })
 end)
 
 actionBtn:SetScript("OnClick", function()
@@ -415,9 +560,52 @@ actionBtn:SetScript("OnClick", function()
     end
 end)
 
+cancelEditBtn:SetScript("OnClick", function()
+    editingIndex = nil
+    editBox:SetText("")
+    editBox:ClearFocus()
+    RefreshManagerUI()
+end)
+
 warningText = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontRedSmall")
 warningText:SetPoint("BOTTOM", managerFrame, "BOTTOM", 0, 45)
 warningText:SetText(L("reloadWarning"))
+
+StaticPopupDialogs["RANDOMDIALOGRP_DELETE_CATEGORY_CONFIRM"] = {
+    text = "",
+    button1 = YES,
+    button2 = NO,
+    hideOnEscape = true,
+    timeout = 0,
+    whileDead = true,
+    preferredIndex = 3,
+    OnShow = function(dialog)
+        dialog.text:SetFormattedText(L("deleteCategoryConfirm"), dialog.data.category)
+    end,
+    OnAccept = function(_, data)
+        local raceData = RandomDialogRP_CustomDB[data.race]
+        if not raceData or not raceData[data.category] or IsBuiltinCategory(data.category) then
+            return
+        end
+
+        raceData[data.category] = nil
+        for index, category in ipairs(raceData.categoryOrder) do
+            if category == data.category then
+                table.remove(raceData.categoryOrder, index)
+                break
+            end
+        end
+
+        if currentRace == data.race then
+            selectedCategory = GetCategories(currentRace)[1]
+            editingIndex = nil
+            editBox:SetText("")
+            RefreshActionButtons()
+            RefreshManagerUI()
+        end
+        print("|cFF00FF00[RandomDialogRP]|r " .. L("categoryRemoved"))
+    end
+}
 
 StaticPopupDialogs["RANDOMDIALOGRP_RESET_CONFIRM"] = {
     text = "",

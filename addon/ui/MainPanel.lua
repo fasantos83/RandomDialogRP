@@ -4,6 +4,7 @@ frame:SetSize(390, 215)
 frame:SetMovable(true)
 frame:EnableMouse(true)
 frame:SetClampedToScreen(true)
+RegisterResponsiveFrame(frame)
 frame:Hide()
 
 frame:SetBackdrop({
@@ -26,18 +27,24 @@ frame:SetScript("OnDragStop", function(self)
     RandomDialogRPDB.panel.yOfs = yOfs
 end)
 
-title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-title:SetPoint("TOP", frame, "TOP", 0, -8)
+title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+title:SetPoint("TOPLEFT", frame, "TOPLEFT", 16, -12)
 title:SetText("RandomDialogRP")
 
--- Race Dropdown
+raceLabelText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+raceLabelText:SetPoint("TOPLEFT", frame, "TOPLEFT", 30, -32)
+raceLabelText:SetText(L("raceLabel"))
+
 dropDown = CreateFrame("Frame", "RandomDialogRPRaceDropDown", frame, "UIDropDownMenuTemplate")
-dropDown:SetPoint("TOPLEFT", frame, "TOPLEFT", 26, -38)
+dropDown:SetPoint("TOPLEFT", frame, "TOPLEFT", 26, -42)
 UIDropDownMenu_SetWidth(dropDown, 110)
 
--- Chat channel dropdown
+chatChannelLabelText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+chatChannelLabelText:SetPoint("TOPLEFT", frame, "TOPLEFT", 188, -32)
+chatChannelLabelText:SetText(L("chatChannelLabel"))
+
 chatChannelDropDown = CreateFrame("Frame", "RandomDialogRPChatChannelDropDown", frame, "UIDropDownMenuTemplate")
-chatChannelDropDown:SetPoint("TOPLEFT", frame, "TOPLEFT", 182, -38)
+chatChannelDropDown:SetPoint("TOPLEFT", frame, "TOPLEFT", 182, -42)
 UIDropDownMenu_SetWidth(chatChannelDropDown, 95)
 
 function ChatChannelDropDown_OnClick(self)
@@ -99,6 +106,23 @@ function DropDown_Initialize(self, level)
     end
 end
 
+actionSectionDivider = frame:CreateTexture(nil, "ARTWORK")
+actionSectionDivider:SetColorTexture(0.65, 0.65, 0.65, 0.55)
+actionSectionDivider:SetHeight(1)
+actionSectionDivider:SetPoint("TOPLEFT", frame, "TOPLEFT", 16, -75)
+actionSectionDivider:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -16, -75)
+
+actionSectionTitle = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+actionSectionTitle:SetPoint("TOPLEFT", frame, "TOPLEFT", 18, -82)
+
+function RefreshMainPanelLabels()
+    raceLabelText:SetText(L("raceLabel"))
+    chatChannelLabelText:SetText(L("chatChannelLabel"))
+    actionSectionTitle:SetText(L("actionSectionTitle"))
+end
+
+RefreshMainPanelLabels()
+
 -- Action Buttons Helper
 function CreateActionButton(category, posX, posY)
     local btn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
@@ -132,12 +156,13 @@ function RefreshActionButtons()
     buttonTexts = {}
     local categories = GetCategories(currentRace)
     local rowCount = math.ceil(#categories / 2)
-    frame:SetHeight(math.max(215, 85 + (rowCount * 30)))
+    frame:SetHeight(math.max(225, 112 + (rowCount * 30)))
+    RefreshResponsiveFrames()
     for index, category in ipairs(categories) do
         local column = (index - 1) % 2
         local row = math.floor((index - 1) / 2)
         local posX = column == 0 and -78 or 78
-        local button = CreateActionButton(category, posX, -70 - (row * 30))
+        local button = CreateActionButton(category, posX, -96 - (row * 30))
         button:Show()
     end
 end

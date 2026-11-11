@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import tempfile
 import zipfile
 from pathlib import Path
@@ -21,17 +22,29 @@ def _token() -> str:
     return token
 
 
-def _resolve_addon_path(addon_path: str) -> Path:
+def _resolve_addon_path(addon_path: str) -> tuple[Path, Path]:
     path = Path(addon_path).expanduser().resolve()
     if not path.is_dir():
         raise ValueError(f"Addon directory does not exist: {path}")
     toc_files = list(path.glob("*.toc"))
-    if not toc_files:
-        raise ValueError(f"Addon directory has no .toc file: {path}")
-    return path
+    if len(toc_files) != 1:
+        raise ValueError(f"Expected exactly one .toc file in addon directory: {path}")
+    return path, toc_files[0]
 
 
-def _make_zip(addon_path: Path, destination: Path) -> None:
+def _project_id_from_toc(toc_path: Path) -> int:
+    for line in toc_path.read_text(encoding="utf-8-sig").splitlines():
+        key, separator, value = line.partition(":")
+        if separator and key.strip().removeprefix("##").strip() == "X-Curse-Project-ID":
+            project_id = value.strip()
+            if re.fullmatch(r"[1-9]\d*", project_id):
+                return int(project_id)
+            raise ValueError(f"Invalid X-Curse-Project-ID in {toc_path}: {project_id!r}")
+    raise ValueError(f"Missing X-Curse-Project-ID in {toc_path}")
+
+
+def _make_zip(addon_path: Path, toc_path: Path, destination: Path) -> None:
+    package_name = toc_path.stem
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as archive:
         for source in addon_path.rglob("*"):
             if not source.is_file():
@@ -41,7 +54,7 @@ def _make_zip(addon_path: Path, destination: Path) -> None:
                 continue
             if source.suffix.lower() in EXCLUDED_SUFFIXES:
                 continue
-            archive.write(source, Path(addon_path.name) / relative)
+            archive.write(source, Path(package_name) / relative)
 
 
 def _multipart(fields: dict, file_field: str, file_name: str, file_data: bytes):
@@ -70,10 +83,10 @@ def _multipart(fields: dict, file_field: str, file_name: str, file_data: bytes):
 
 @mcp.tool()
 def publish_curseforge_release(
-    project_id: int,
     addon_path: str,
     version: str,
     changelog: str,
+    project_id: int | None = None,
     release_type: str = "release",
     game_versions: list[str] | None = None,
 ) -> str:
@@ -85,15 +98,19 @@ def publish_curseforge_release(
     if not changelog.strip():
         raise ValueError("changelog must not be empty.")
 
-    addon = _resolve_addon_path(addon_path)
+    addon, toc_path = _resolve_addon_path(addon_path)
+    if project_id is None:
+        project_id = _project_id_from_toc(toc_path)
+    elif project_id < 1:
+        raise ValueError("project_id must be a positive integer.")
     versions = game_versions or []
     with tempfile.TemporaryDirectory(prefix="randomdialogrp-") as temporary:
-        archive_path = Path(temporary) / f"{addon.name}-{version}.zip"
-        _make_zip(addon, archive_path)
+        archive_path = Path(temporary) / f"{toc_path.stem}-{version}.zip"
+        _make_zip(addon, toc_path, archive_path)
         file_data = archive_path.read_bytes()
 
     metadata = {
-        "displayName": f"{addon.name} {version}",
+        "displayName": f"{toc_path.stem} {version}",
         "changelog": changelog,
         "changelogType": "markdown",
         "releaseType": release_type,
@@ -106,7 +123,7 @@ def publish_curseforge_release(
         data=body,
         method="POST",
         headers={
-            "X-Api-Token": _token(),
+            "x-api-key": _token(),
             "Content-Type": content_type,
             "User-Agent": "RandomDialogRP CurseForge MCP",
         },

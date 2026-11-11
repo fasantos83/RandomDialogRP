@@ -133,21 +133,27 @@ The workflow needs the full Git history to generate release changelogs.
 
 This workspace includes an optional local MCP server for publishing releases to CurseForge.
 
-1. Revoke any API token that was shared in chat or committed anywhere.
-2. Create a replacement CurseForge API token.
-3. Store it as a Windows user environment variable:
+1. Generate a CurseForge API key in the [CurseForge for Studios developer
+   console](https://console.curseforge.com/).
+2. Store the key as a Windows user environment variable:
 
    ```powershell
-   [Environment]::SetEnvironmentVariable("CURSEFORGE_API_TOKEN", "YOUR_TOKEN", "User")
+   [Environment]::SetEnvironmentVariable("CURSEFORGE_API_TOKEN", "YOUR_API_KEY", "User")
    ```
 
-4. Install the MCP dependency:
+3. Install the MCP dependency:
 
    ```powershell
    python -m pip install -r requirements-mcp.txt
    ```
 
-5. Restart VS Code and enable the `curseforge-publisher` MCP server.
+4. Restart VS Code and enable the `curseforge-publisher` MCP server.
+
+The MCP reads the CurseForge project ID from `X-Curse-Project-ID` in
+`addon/RandomDialogRP.toc`. This key is recognized by BigWigs Packager and this
+MCP; it is not a Blizzard-defined TOC directive. Provide the `addon` folder as
+`addon_path`. The generated archive contains the required `RandomDialogRP/`
+top-level folder.
 
 The addon source files are in the `addon` folder, organized into these modules:
 
@@ -159,6 +165,6 @@ The addon source files are in the `addon` folder, organized into these modules:
 The UI modules share the initialized addon state, while profile persistence is
 owned exclusively by `core/Profiles.lua`. The MCP publisher is in
 `tools/curseforge_mcp.py`. Use the `publish_curseforge_release` tool with the
-CurseForge project ID, addon path, version, changelog, release type, and
-optional game-version IDs. The server creates the ZIP locally and never writes
-the API token to disk.
+addon path, version, changelog, release type, and optional game-version IDs.
+The project ID defaults to the TOC value but can be overridden. The server
+creates the ZIP locally and never writes the API token to disk.
