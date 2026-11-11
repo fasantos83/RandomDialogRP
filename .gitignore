@@ -1,0 +1,7 @@
+# Locally generated release packages
+/releases/
+
+# Local CurseForge publishing tools
+/.vscode/mcp.json
+/requirements-mcp.txt
+/tools/curseforge_mcp.py

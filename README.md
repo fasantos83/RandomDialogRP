@@ -1,30 +1,23 @@
 # RandomDialogRP
 
-RandomDialogRP is a lightweight roleplay addon for World of Warcraft that helps bring your character to life with themed dialogue and emotes.
-
-Use the movable panel to quickly send race-themed dialogue or any custom phrases you create.
+RandomDialogRP is a World of Warcraft roleplay addon for sending race-themed or
+custom dialogue with a chosen emote.
 
 ## Features
 
-- Automatically detects your character's race.
-- Includes themed phrases for the original races and Skyborne.
-- Includes default categories for Greetings, Thanks, Battle Shout, Farewell, Warning, Question, Agreement, Disagreement, Celebration, Encouragement, and Joke.
-- Provides four starting phrases in every default category for every supported race.
-- Sends phrases through `/say`.
-- Automatically inserts your target's name with the `%s` placeholder.
-- The `%s` placeholder uses the target's first name only.
-- Uses `friend` when no target is selected.
-- Choose whether phrases are sent with `/say`, `/yell`, or `/whisper`.
-- Whisper phrases are sent to your current target.
-- Assigns a different emote to every phrase.
-- Avoids immediately repeating a phrase in the same category for a short period when alternatives exist.
-- Create, rename, and delete custom categories.
-- Add, edit, and remove phrases in-game.
-- Choose category icons from Blizzard's macro icon collection.
-- Movable main panel and draggable minimap button.
-- Saves phrases, categories, icons, emotes, language, and positions.
-- Supports account-wide named profiles that can be created, loaded, renamed, and deleted.
-- English and Brazilian Portuguese localization.
+- Detects your character's race and includes themed phrases for supported races.
+- Lets you send phrases through Say, Yell, or Whisper.
+- Replaces `%s` in a phrase with your target's first name, or `friend` if you
+  have no target.
+- Chooses a phrase at random and avoids immediate repeats when alternatives
+  exist.
+- Supports custom phrases, categories, category icons, and per-phrase emotes.
+- Includes searchable phrases and multi-line previews for longer text.
+- Organizes phrase, category, language, and profile controls in the phrase
+  manager's tabs.
+- Supports named profiles for saving different phrase collections and settings.
+- Includes English and Brazilian Portuguese localization.
+- Provides a movable main panel and draggable minimap button.
 
 ## Opening the Addon
 
@@ -32,140 +25,49 @@ Use the movable panel to quickly send race-themed dialogue or any custom phrases
 - Use `/rp` to show or hide the main panel.
 - Use `/rp config` or `/rp edit` to open the phrase manager.
 
-## Using the Main Panel
+## Sending Dialogue
 
-1. Select the race or character theme from the race dropdown.
-2. Click a category button.
-3. RandomDialogRP selects one of that category's phrases.
-4. The phrase is sent through `/say`.
-5. The phrase's selected emote is performed automatically.
+1. Select the race or character theme from the main panel.
+2. Choose Say, Yell, or Whisper as the chat channel.
+3. Click a category button to send a random phrase from that category.
 
-## Managing Categories
+Whisper sends the phrase to your current player target. If a phrase contains
+`%s`, the addon's target name is inserted; without a target, it uses `friend`.
+The phrase's assigned emote is performed automatically.
+
+## Managing Phrases and Categories
 
 Open the phrase manager with `/rp config`.
 
-- Use the category dropdown to choose a category.
-- Click **Add** beside the category dropdown to create a category.
-- Enter a name and click **Rename** to rename the selected category.
-- Click **Delete** to remove a custom category.
-- Built-in categories cannot be deleted.
-- New categories start with an empty phrase list.
-- Click the category icon button to select an icon from Blizzard's available macro icons.
+- In **Phrases**, choose a category, search its phrases, and add, edit, or
+  remove phrases. Use the emote picker beside a phrase to change its emote.
+- In **Categories**, add, rename, delete, or choose an icon for a category.
+  Built-in categories cannot be deleted. Deleting a custom category also
+  deletes its phrases and requires confirmation.
+- Longer phrases wrap in the list preview. When editing, use **Update** to save
+  or **Cancel** to discard the edit.
 
-## Managing Phrases
+## Profiles and Settings
 
-1. Select a category.
-2. Enter a phrase in the text field.
-3. Click **Add**.
-4. Use **Edit** or **Del** beside an existing phrase to change or remove it.
-5. Use the emote picker beside each phrase to choose its emote.
+In the **Settings** tab, choose English or Brazilian Portuguese and manage
+profiles. Profiles can be created, saved, loaded, renamed, and deleted.
+Deleting a profile requires confirmation; the Default profile cannot be deleted.
 
-Existing phrases remain compatible when updating from an older version. They continue using their category emote until a different emote is selected.
+## Resetting Saved Data
 
-## Target Names
-
-Use `%s` anywhere in a phrase to insert the name of your current target:
+Click **Reset All Data** at the bottom of the phrase manager and confirm the
+prompt to restore default phrases and settings. You can also open the
+confirmation with:
 
 ```text
-Greetings, %s!
+/rp reset
 ```
 
-If you do not have a target, `%s` becomes `friend`.
-
-## Saving Changes
-
-Changes are stored in World of Warcraft's SavedVariables. Use **Save & Reload** in the phrase manager when prompted so all interface changes are refreshed.
-
-## Localization
-
-The interface is available in:
-
-- English
-- Brazilian Portuguese
-
-Select the language from the phrase manager.
+Use **Save & Reload** to reload the interface after making changes.
 
 ## Installation
 
-1. Download or copy the `RandomDialogRP` folder.
-2. Place it in:
-
-   ```text
-   World of Warcraft\_classic_\Interface\AddOns\
-   ```
-
-3. Enable **RandomDialogRP** from the character selection AddOns menu.
-
-The exact World of Warcraft folder may differ depending on the client installation.
-
-## Slash Commands
-
-| Command | Action |
-| --- | --- |
-| `/rp` | Show or hide the main panel |
-| `/rp config` | Open the phrase manager |
-| `/rp edit` | Open the phrase manager |
-| `/rp reset` | Open the reset confirmation |
-
-## Automated Releases
-
-Pushing a version tag such as `3.1.24` runs the GitHub Actions release workflow.
-It packages the addon from the `addon` directory, uploads it to the Wago project
-identified by `X-Wago-ID` in the TOC, and creates a GitHub release. The root
-`.pkgmeta` configures the packager to place the addon files at the archive root.
-
-Before the first release, add a Wago API token as the repository Actions secret
-`WAGO_API_TOKEN` under **Settings > Secrets and variables > Actions**. The
-workflow uses GitHub's automatically provided token to create the release; its
-permissions are declared in the workflow.
-
-For each release, update `## Version` in `addon/RandomDialogRP.toc`, commit the
-change, then create and push an annotated tag with the exact same version. For
-example:
-
-```powershell
-git tag -a 3.1.24 -m "3.1.24"
-git push origin 3.1.24
-```
-
-The workflow needs the full Git history to generate release changelogs.
-
-## Optional CurseForge Publishing MCP
-
-This workspace includes an optional local MCP server for publishing releases to CurseForge.
-
-1. Generate a CurseForge API key in the [CurseForge for Studios developer
-   console](https://console.curseforge.com/).
-2. Store the key as a Windows user environment variable:
-
-   ```powershell
-   [Environment]::SetEnvironmentVariable("CURSEFORGE_API_TOKEN", "YOUR_API_KEY", "User")
-   ```
-
-3. Install the MCP dependency:
-
-   ```powershell
-   python -m pip install -r requirements-mcp.txt
-   ```
-
-4. Restart VS Code and enable the `curseforge-publisher` MCP server.
-
-The MCP reads the CurseForge project ID from `X-Curse-Project-ID` in
-`addon/RandomDialogRP.toc`. This key is recognized by BigWigs Packager and this
-MCP; it is not a Blizzard-defined TOC directive. Provide the `addon` folder as
-`addon_path`. The generated archive contains the required `RandomDialogRP/`
-top-level folder.
-
-The addon source files are in the `addon` folder, organized into these modules:
-
-- `localization/Locales.lua`
-- `core/Database.lua`, `core/Profiles.lua`, and `core/Init.lua`
-- `ui/UIHelpers.lua`, `ui/MainPanel.lua`, `ui/PhraseManager.lua`,
-  `ui/ProfileManager.lua`, and `ui/Minimap.lua`
-
-The UI modules share the initialized addon state, while profile persistence is
-owned exclusively by `core/Profiles.lua`. The MCP publisher is in
-`tools/curseforge_mcp.py`. Use the `publish_curseforge_release` tool with the
-addon path, version, changelog, release type, and optional game-version IDs.
-The project ID defaults to the TOC value but can be overridden. The server
-creates the ZIP locally and never writes the API token to disk.
+Download or copy the `RandomDialogRP` folder into your World of Warcraft
+installation's `Interface\AddOns\` directory, then enable **RandomDialogRP**
+from the character selection AddOns menu. The exact game folder depends on
+your installation.

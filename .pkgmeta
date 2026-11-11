@@ -5,6 +5,4 @@ move-folders:
 
 ignore:
   - releases
-  - tools
-  - requirements-mcp.txt
   - README.md
