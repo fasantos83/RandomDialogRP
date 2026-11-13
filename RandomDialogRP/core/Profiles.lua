@@ -1,4 +1,4 @@
--- Account-wide named profile storage and migration.
+-- Account-wide named profile storage and migration with personality support.
 
 RandomDialogRPDB = RandomDialogRPDB or {}
 RandomDialogRP_CustomDB = RandomDialogRP_CustomDB or {}
@@ -21,13 +21,15 @@ local function CopyTable(value)
 end
 
 function RandomDialogRP_Profiles.EnsureStore()
-    local profileKey = GetProfileKey()
-    if not RandomDialogRPDB.profiles then
+    RandomDialogRPDB.activePersonality = RandomDialogRPDB.activePersonality or "Default"
+    if type(RandomDialogRPDB.profiles) ~= "table" then
         local legacySettings = {
             panel = RandomDialogRPDB.panel,
             minimap = RandomDialogRPDB.minimap,
             language = RandomDialogRPDB.language,
-            chatChannel = RandomDialogRPDB.chatChannel
+            chatChannel = RandomDialogRPDB.chatChannel,
+            rpClass = RandomDialogRPDB.rpClass,
+            activePersonality = RandomDialogRPDB.activePersonality
         }
         RandomDialogRPDB.profiles = {
             Default = {
@@ -36,9 +38,11 @@ function RandomDialogRP_Profiles.EnsureStore()
             }
         }
         RandomDialogRPDB.activeProfile = "Default"
+        RandomDialogRPDB.profileSchemaVersion = 2
     elseif not RandomDialogRPDB.profileSchemaVersion then
         local oldProfiles = RandomDialogRPDB.profiles
         local namedProfiles = {}
+        local profileKey = GetProfileKey()
         local currentProfile = oldProfiles[profileKey]
         if currentProfile then
             namedProfiles.Default = currentProfile
@@ -50,10 +54,18 @@ function RandomDialogRP_Profiles.EnsureStore()
                 namedProfiles[name] = profile
             end
         end
-        namedProfiles.Default = namedProfiles.Default or { settings = {}, custom = {} }
+        namedProfiles.Default = namedProfiles.Default or {
+            settings = {},
+            custom = RandomDialogRP_CustomDB
+        }
         RandomDialogRPDB.profiles = namedProfiles
         RandomDialogRPDB.activeProfile = "Default"
         RandomDialogRPDB.profileSchemaVersion = 2
+    elseif not RandomDialogRPDB.profiles.Default then
+        RandomDialogRPDB.profiles.Default = {
+            settings = {},
+            custom = RandomDialogRP_CustomDB
+        }
     end
 end
 
@@ -66,13 +78,21 @@ function RandomDialogRP_Profiles.Activate(profileName)
     profile.settings.minimap = profile.settings.minimap or { angle = 45 }
     profile.settings.language = profile.settings.language or "enUS"
     profile.settings.chatChannel = profile.settings.chatChannel or "SAY"
+    profile.settings.activePersonality = profile.settings.activePersonality or "Default"
+
     profile.custom = profile.custom or {}
     profile.name = profile.name or profileName
+
     RandomDialogRPDB.activeProfile = profileName
     RandomDialogRPDB.panel = profile.settings.panel
     RandomDialogRPDB.minimap = profile.settings.minimap
     RandomDialogRPDB.language = profile.settings.language
     RandomDialogRPDB.chatChannel = profile.settings.chatChannel
+    RandomDialogRPDB.rpClass = profile.settings.rpClass
+    RandomDialogRPDB.activePersonality = profile.settings.activePersonality
+
+    currentClass = profile.settings.rpClass
+    currentPersonality = profile.settings.activePersonality
     RandomDialogRP_CustomDB = profile.custom
     return true
 end
@@ -99,6 +119,8 @@ function RandomDialogRP_Profiles.SaveActive()
         profile.settings.minimap = RandomDialogRPDB.minimap
         profile.settings.language = RandomDialogRPDB.language
         profile.settings.chatChannel = RandomDialogRPDB.chatChannel
+        profile.settings.rpClass = RandomDialogRPDB.rpClass
+        profile.settings.activePersonality = RandomDialogRPDB.activePersonality
         profile.custom = RandomDialogRP_CustomDB
     end
 end

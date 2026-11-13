@@ -6,6 +6,8 @@ custom dialogue with a chosen emote.
 ## Features
 
 - Detects your character's race and includes themed phrases for supported races.
+- Lets you optionally choose a class for class-specific phrases, while keeping
+  race-wide phrases as a fallback.
 - Lets you send phrases through Say, Yell, or Whisper.
 - Replaces `%s` in a phrase with your target's first name, or `friend` if you
   have no target.
@@ -27,9 +29,15 @@ custom dialogue with a chosen emote.
 
 ## Sending Dialogue
 
-1. Select the race or character theme from the main panel.
+1. Select a race and optionally a class from the main panel. Choose **None** to
+   use race-wide phrases only.
 2. Choose Say, Yell, or Whisper as the chat channel.
 3. Click a category button to send a random phrase from that category.
+
+When both class-specific and race-wide phrases are available, the addon chooses
+from the class-specific phrases 80% of the time and from the race-wide phrases
+20% of the time. The phrase manager has its own race and class selectors, so
+you can edit another combination without changing the main panel selection.
 
 Whisper sends the phrase to your current player target. If a phrase contains
 `%s`, the addon's target name is inserted; without a target, it uses `friend`.
@@ -40,18 +48,24 @@ The phrase's assigned emote is performed automatically.
 Open the phrase manager with `/rp config`.
 
 - In **Phrases**, choose a category, search its phrases, and add, edit, or
-  remove phrases. Use the emote picker beside a phrase to change its emote.
-- In **Categories**, add, rename, delete, or choose an icon for a category.
-  Built-in categories cannot be deleted. Deleting a custom category also
-  deletes its phrases and requires confirmation.
+  remove phrases. Select a personality, category, race, and optional class to
+  manage that combination. Use **None** for race-wide phrases, and use the
+  emote picker beside a phrase to change its emote.
 - Longer phrases wrap in the list preview. When editing, use **Update** to save
   or **Cancel** to discard the edit.
 
 ## Profiles and Settings
 
-In the **Settings** tab, choose English or Brazilian Portuguese and manage
-profiles. Profiles can be created, saved, loaded, renamed, and deleted.
+In the **Settings** tab, choose English or Brazilian Portuguese, manage
+profiles, and add, rename, delete, or choose an icon for categories.
+Built-in categories cannot be deleted. Deleting a custom category also deletes
+its phrases and requires confirmation. Profiles can be created, saved, loaded,
+renamed, and deleted.
 Deleting a profile requires confirmation; the Default profile cannot be deleted.
+Each profile also has its own personalities, which are separate phrase
+collections. Select a personality to switch collections, or enter a name and
+choose **Create** to make a copy of the active personality. Personalities can
+be renamed or deleted; the Default personality is protected.
 
 ## Resetting Saved Data
 

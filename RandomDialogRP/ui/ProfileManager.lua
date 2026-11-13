@@ -1,6 +1,7 @@
 -- Profile manager UI.
 managerFrame = CreateFrame("Frame", "RandomDialogRPManager", UIParent, "BackdropTemplate")
-managerFrame:SetSize(560, 420)
+managerFrame:SetSize(700, 560)
+managerFrame:SetFrameStrata("DIALOG")
 managerFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 managerFrame:SetMovable(true)
 managerFrame:EnableMouse(true)
@@ -8,17 +9,18 @@ managerFrame:SetClampedToScreen(true)
 managerFrame:Hide()
 
 managerFrame:SetBackdrop({
-    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-    tile = true, tileSize = 32, edgeSize = 16,
+    bgFile = "Interface\\Buttons\\WHITE8X8",
+    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    tile = false, tileSize = 16, edgeSize = 16,
     insets = { left = 4, right = 4, top = 4, bottom = 4 }
 })
-managerFrame:SetBackdropColor(0, 0, 0, 0.75)
-managerFrame:SetBackdropBorderColor(0.65, 0.65, 0.65, 1)
+managerFrame:SetBackdropColor(0.045, 0.04, 0.028, 1)
+managerFrame:SetBackdropBorderColor(0.36, 0.32, 0.17, 1)
 
 managerFrame:RegisterForDrag("LeftButton")
 managerFrame:SetScript("OnDragStart", managerFrame.StartMoving)
 managerFrame:SetScript("OnDragStop", managerFrame.StopMovingOrSizing)
+managerFrame:HookScript("OnShow", function(self) self:Raise() end)
 
 managerTitle = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 managerTitle:SetPoint("TOP", managerFrame, "TOP", 0, -10)
@@ -33,9 +35,13 @@ profileDropDown = nil
 profileNameBox = nil
 selectedProfileName = nil
 RefreshProfileUI = nil
+personalityDropDown = nil
+personalityNameBox = nil
+selectedPersonalityName = nil
+RefreshPersonalityUI = nil
 
 function EnsureSelectedCategory()
-    local categories = GetCategories(currentRace)
+    local categories = GetCategories(selectedPhraseRace or currentRace)
     for _, category in ipairs(categories) do
         if category == selectedCategory then return end
     end
@@ -44,6 +50,190 @@ function EnsureSelectedCategory()
 end
 
 RegisterResponsiveFrame(managerFrame)
+
+personalityLabel = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+personalityLabel:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 130, -75)
+
+personalityDropDown = CreateFrame("Frame", "RandomDialogRPPersonalityDropDown", managerFrame, "UIDropDownMenuTemplate")
+personalityDropDown:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 120, -85)
+UIDropDownMenu_SetWidth(personalityDropDown, 90)
+
+local function GetPersonalityNames()
+    local names = {}
+    for name, data in pairs(RandomDialogRP_CustomDB) do
+        if type(data) == "table" and type(data.categoryOrder) == "table" then
+            table.insert(names, name)
+        end
+    end
+    table.sort(names)
+    return names
+end
+
+local function RefreshAfterPersonalityChange()
+    InitCustomDB()
+    RandomDialogRP_Profiles.SaveActive()
+    selectedCategory = "greetings"
+    editingIndex = nil
+    if editBox then editBox:SetText("") end
+    EnsureSelectedCategory()
+    RefreshActionButtons()
+    RefreshManagerUI()
+    RefreshPersonalityUI()
+end
+
+function PersonalityDropDown_OnClick(self)
+    selectedPersonalityName = self.value
+    if selectedPersonalityName == RandomDialogRPDB.activePersonality then
+        RefreshPersonalityUI()
+        return
+    end
+    if type(RandomDialogRP_CustomDB[selectedPersonalityName]) ~= "table" then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("personalityInvalid"))
+        RefreshPersonalityUI()
+        return
+    end
+
+    RandomDialogRPDB.activePersonality = selectedPersonalityName
+    currentPersonality = selectedPersonalityName
+    RefreshAfterPersonalityChange()
+    print("|cFF00FF00[RandomDialogRP]|r " .. L("personalityLoaded"))
+end
+
+function PersonalityDropDown_Initialize(self, level)
+    for _, name in ipairs(GetPersonalityNames()) do
+        local info = UIDropDownMenu_CreateInfo()
+        info.text = name
+        info.value = name
+        info.func = PersonalityDropDown_OnClick
+        info.checked = name == RandomDialogRPDB.activePersonality
+        UIDropDownMenu_AddButton(info, level)
+    end
+end
+UIDropDownMenu_Initialize(personalityDropDown, PersonalityDropDown_Initialize)
+UIDropDownMenu_Initialize(mainPersonalityDropDown, PersonalityDropDown_Initialize)
+
+personalityNameLabel = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+personalityNameLabel:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 260, -75)
+
+personalityNameBox = CreateFrame("EditBox", nil, managerFrame, "InputBoxTemplate")
+personalityNameBox:SetSize(90, 22)
+personalityNameBox:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 255, -85)
+personalityNameBox:SetAutoFocus(false)
+
+createPersonalityBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
+createPersonalityBtn:SetSize(58, 24)
+createPersonalityBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 350, -85)
+
+renamePersonalityBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
+renamePersonalityBtn:SetSize(70, 24)
+renamePersonalityBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 412, -85)
+
+deletePersonalityBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
+deletePersonalityBtn:SetSize(58, 24)
+deletePersonalityBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 488, -85)
+
+RefreshPersonalityUI = function()
+    selectedPersonalityName = RandomDialogRPDB.activePersonality or "Default"
+    personalityLabel:SetText(L("personalityLabel"))
+    personalityNameLabel:SetText(L("personalityName"))
+    UIDropDownMenu_SetSelectedValue(personalityDropDown, selectedPersonalityName)
+    UIDropDownMenu_SetText(personalityDropDown, selectedPersonalityName)
+    RefreshMainPersonalityDropDown()
+    if phrasePersonalityDropDown then
+        UIDropDownMenu_SetSelectedValue(phrasePersonalityDropDown, selectedPersonalityName)
+        UIDropDownMenu_SetText(phrasePersonalityDropDown, selectedPersonalityName)
+    end
+    createPersonalityBtn:SetText(L("personalityCreateBtn"))
+    renamePersonalityBtn:SetText(L("personalityRenameBtn"))
+    deletePersonalityBtn:SetText(L("personalityDeleteBtn"))
+end
+
+createPersonalityBtn:SetScript("OnClick", function()
+    local name = string.gsub(personalityNameBox:GetText() or "", "^%s*(.-)%s*$", "%1")
+    if name == "" then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("personalityInvalid"))
+        return
+    end
+    if RandomDialogRP_CustomDB[name] then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("personalityExists"))
+        return
+    end
+
+    local activeData = RandomDialogRP_CustomDB[currentPersonality]
+    if type(activeData) ~= "table" then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("personalityInvalid"))
+        return
+    end
+    RandomDialogRP_CustomDB[name] = RandomDialogRP_Profiles.Copy(activeData)
+    RandomDialogRPDB.activePersonality = name
+    currentPersonality = name
+    personalityNameBox:SetText("")
+    RefreshAfterPersonalityChange()
+    print("|cFF00FF00[RandomDialogRP]|r " .. L("personalityCreated"))
+end)
+
+renamePersonalityBtn:SetScript("OnClick", function()
+    local oldName = RandomDialogRPDB.activePersonality
+    local name = string.gsub(personalityNameBox:GetText() or "", "^%s*(.-)%s*$", "%1")
+    if oldName == "Default" then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("cannotChangeDefaultPersonality"))
+        return
+    end
+    if name == "" then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("personalityInvalid"))
+        return
+    end
+    if name == oldName then return end
+    if RandomDialogRP_CustomDB[name] then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("personalityExists"))
+        return
+    end
+
+    RandomDialogRP_CustomDB[name] = RandomDialogRP_CustomDB[oldName]
+    RandomDialogRP_CustomDB[oldName] = nil
+    RandomDialogRPDB.activePersonality = name
+    currentPersonality = name
+    RandomDialogRP_Profiles.SaveActive()
+    RefreshPersonalityUI()
+    RefreshActionButtons()
+    RefreshManagerUI()
+    print("|cFF00FF00[RandomDialogRP]|r " .. L("personalityRenamed"))
+end)
+
+deletePersonalityBtn:SetScript("OnClick", function()
+    local name = RandomDialogRPDB.activePersonality
+    if name == "Default" then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("cannotChangeDefaultPersonality"))
+        return
+    end
+    StaticPopup_Show("RANDOMDIALOGRP_DELETE_PERSONALITY_CONFIRM", nil, nil, name)
+end)
+
+StaticPopupDialogs["RANDOMDIALOGRP_DELETE_PERSONALITY_CONFIRM"] = {
+    text = "",
+    button1 = YES,
+    button2 = NO,
+    hideOnEscape = true,
+    timeout = 0,
+    whileDead = true,
+    preferredIndex = 3,
+    OnShow = function(dialog)
+        dialog.Text:SetFormattedText(L("deletePersonalityConfirm"), dialog.data)
+    end,
+    OnAccept = function(_, name)
+        if name == "Default" or not RandomDialogRP_CustomDB[name] then return end
+        local wasActive = RandomDialogRPDB.activePersonality == name
+        RandomDialogRP_CustomDB[name] = nil
+        if wasActive then
+            RandomDialogRPDB.activePersonality = "Default"
+            currentPersonality = "Default"
+            RefreshAfterPersonalityChange()
+        else
+            RefreshPersonalityUI()
+        end
+        print("|cFF00FF00[RandomDialogRP]|r " .. L("personalityDeleted"))
+    end
+}
 
 profileTitle = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 profileTitle:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -141)
@@ -55,15 +245,15 @@ profileSectionDivider:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 16, -130)
 profileSectionDivider:SetPoint("TOPRIGHT", managerFrame, "TOPRIGHT", -16, -130)
 
 currentProfileText = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-currentProfileText:SetPoint("TOP", managerFrame, "TOP", 0, -160)
+currentProfileText:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -160)
 
 profileDropDown = CreateFrame("Frame", "RandomDialogRPProfileDropDown", managerFrame, "UIDropDownMenuTemplate")
 profileSelectText = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-profileSelectText:SetPoint("TOP", managerFrame, "TOP", 0, -178)
+profileSelectText:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -178)
 profileSelectText:SetWidth(300)
-profileSelectText:SetJustifyH("CENTER")
+profileSelectText:SetJustifyH("LEFT")
 
-profileDropDown:SetPoint("TOP", managerFrame, "TOP", 0, -202)
+profileDropDown:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 10, -202)
 UIDropDownMenu_SetWidth(profileDropDown, 240)
 
 function ProfileDropDown_OnClick(self)
@@ -86,7 +276,7 @@ UIDropDownMenu_Initialize(profileDropDown, ProfileDropDown_Initialize)
 
 profileNameBox = CreateFrame("EditBox", nil, managerFrame, "InputBoxTemplate")
 profileNameBox:SetSize(300, 22)
-profileNameBox:SetPoint("TOP", managerFrame, "TOP", 0, -242)
+profileNameBox:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 18, -242)
 profileNameBox:SetAutoFocus(false)
 
 profileNameLabel = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -94,7 +284,7 @@ profileNameLabel:SetPoint("BOTTOMLEFT", profileNameBox, "TOPLEFT", 0, 3)
 
 createProfileBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 createProfileBtn:SetSize(96, 24)
-createProfileBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 128, -278)
+createProfileBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -278)
 
 saveProfileBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 saveProfileBtn:SetSize(96, 24)
@@ -106,7 +296,7 @@ loadProfileBtn:SetPoint("LEFT", saveProfileBtn, "RIGHT", 8, 0)
 
 renameProfileBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 renameProfileBtn:SetSize(96, 24)
-renameProfileBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 180, -310)
+renameProfileBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -310)
 
 deleteProfileBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 deleteProfileBtn:SetSize(96, 24)
@@ -139,6 +329,7 @@ end
 
 function RefreshAfterProfileChange()
     InitCustomDB()
+    RefreshPersonalityUI()
     RefreshChatChannelDropDown()
     selectedCategory = "greetings"
     editingIndex = nil
@@ -157,6 +348,7 @@ function RefreshAfterProfileChange()
     if _G.RandomDialogRPMinimapButton and RandomDialogRPDB.minimap then
         MoveMinimapButton(RandomDialogRPDB.minimap.angle)
     end
+    RefreshMainClassDropDown()
     RefreshActionButtons()
     RefreshManagerUI()
     RefreshProfileUI()
@@ -234,7 +426,7 @@ StaticPopupDialogs["RANDOMDIALOGRP_DELETE_PROFILE_CONFIRM"] = {
     whileDead = true,
     preferredIndex = 3,
     OnShow = function(dialog)
-        dialog.text:SetFormattedText(L("deleteProfileConfirm"), dialog.data)
+        dialog.Text:SetFormattedText(L("deleteProfileConfirm"), dialog.data)
     end,
     OnAccept = function(_, name)
         if name == "Default" or not RandomDialogRPDB.profiles[name] then

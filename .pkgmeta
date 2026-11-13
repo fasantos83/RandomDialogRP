@@ -1,8 +1,14 @@
 package-as: RandomDialogRP
 
 move-folders:
-  RandomDialogRP/addon: RandomDialogRP
+  RandomDialogRP/RandomDialogRP: RandomDialogRP
 
 ignore:
   - releases
   - README.md
+  - CHANGELOG.md
+  - tools
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown

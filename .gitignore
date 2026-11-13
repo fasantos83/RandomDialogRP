@@ -5,3 +5,10 @@
 /.vscode/mcp.json
 /requirements-mcp.txt
 /tools/curseforge_mcp.py
+
+# Unused UI prototypes and redesign drafts
+/RandomDialogRP/ui/LeatrixStyleUI.lua
+/RandomDialogRP/ui/MainPanelLeatrix.lua
+/INTEGRATION_GUIDE.md
+/UI_DESIGN_DRAFT.md
+/UI_REDESIGN_SUMMARY.txt

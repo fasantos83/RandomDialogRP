@@ -17,14 +17,26 @@ function InitializeAddon()
         if string.find(raceUpper, "SKYBORNE") then
             currentRace = "Skyborne"
             print("|cFF00FF00[RandomDialogRP]|r " .. L("autoDetected") .. " " .. currentRace)
-        elseif RandomDialogRP_CustomDB[playerRaceEnglish] then
+        elseif phraseRaceClasses[playerRaceEnglish] then
             currentRace = playerRaceEnglish
             print("|cFF00FF00[RandomDialogRP]|r " .. L("autoDetected") .. " " .. currentRace)
         end
     end
 
+    local _, playerClass = UnitClass("player")
+    if currentClass == nil then
+        currentClass = IsClassAvailableForRace(currentRace, playerClass) and playerClass or "NONE"
+    elseif currentClass ~= "NONE" and not IsClassAvailableForRace(currentRace, currentClass) then
+        currentClass = "NONE"
+    end
+    RandomDialogRPDB.rpClass = currentClass
+    RandomDialogRP_Profiles.SaveActive()
+    selectedPhraseRace = currentRace
+    EnsureSelectedCategory()
+
     UIDropDownMenu_SetSelectedValue(dropDown, currentRace)
     UIDropDownMenu_SetText(dropDown, currentRace)
+    RefreshMainClassDropDown()
     RefreshMainPanelLabels()
     RefreshChatChannelDropDown()
     EnsureSelectedCategory()
