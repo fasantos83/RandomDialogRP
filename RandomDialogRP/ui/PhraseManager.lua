@@ -462,6 +462,7 @@ function SetManagerTab(tab)
     if resetDataBtn then resetDataBtn:SetShown(showSettings) end
     if saveReloadBtn then saveReloadBtn:SetShown(showSettings) end
     if tutorialBtn then tutorialBtn:SetShown(showSettings) end
+    managerVersionText:SetShown(showSettings)
     if warningText then warningText:SetShown(showSettings) end
 
     for _, tabButton in ipairs({ phraseTab, settingsTab }) do
@@ -816,6 +817,10 @@ RefreshManagerUI = function()
     deleteCategoryBtn:SetText(L("deleteCategoryBtn"))
     if resetDataBtn then resetDataBtn:SetText(L("resetBtn")) end
     if tutorialBtn then tutorialBtn:SetText(L("tutorialBtn")) end
+    managerVersionText:SetText(string.format(
+        L("versionLabel"),
+        addonVersion
+    ))
     
     for cat, data in pairs(buttonTexts) do
         data.btn:SetText(GetCategoryLabel(cat))

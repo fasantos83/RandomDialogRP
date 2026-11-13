@@ -26,6 +26,14 @@ managerTitle = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 managerTitle:SetPoint("TOP", managerFrame, "TOP", 0, -10)
 managerTitle:SetText(L("managerTitle"))
 
+local getAddonMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
+addonVersion = getAddonMetadata and getAddonMetadata("RandomDialogRP", "Version") or "Unknown"
+managerVersionText = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+managerVersionText:SetPoint("BOTTOMRIGHT", managerFrame, "BOTTOMRIGHT", -24, 22)
+managerVersionText:SetJustifyH("RIGHT")
+managerVersionText:SetTextColor(0.82, 0.74, 0.48)
+managerVersionText:SetText(string.format(L("versionLabel"), addonVersion))
+
 selectedCategory = "greetings"
 editingIndex = nil
 selectedManagerTab = "phrases"
