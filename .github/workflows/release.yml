@@ -9,11 +9,56 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  curseforge:
+    name: Publish to CurseForge
     runs-on: ubuntu-latest
     env:
       CF_API_KEY: ${{ secrets.CF_API_KEY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check CurseForge token
+        run: |
+          if [ -z "$CF_API_KEY" ]; then
+            echo "::error::CF_API_KEY is not configured."
+            exit 1
+          fi
+
+      - name: Package and publish to CurseForge
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -a 0
+
+  wago:
+    name: Publish to Wago
+    runs-on: ubuntu-latest
+    env:
       WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Wago token
+        run: |
+          if [ -z "$WAGO_API_TOKEN" ]; then
+            echo "::error::WAGO_API_TOKEN is not configured."
+            exit 1
+          fi
+
+      - name: Package and publish to Wago
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -p 0
+
+  github:
+    name: Publish GitHub release
+    runs-on: ubuntu-latest
+    env:
       GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out repository
@@ -21,5 +66,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Package and publish to Wago
+      - name: Package and publish to GitHub
         uses: BigWigsMods/packager@v2
+        with:
+          args: -p 0 -a 0

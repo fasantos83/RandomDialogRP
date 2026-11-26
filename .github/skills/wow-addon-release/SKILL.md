@@ -12,7 +12,7 @@ When the user explicitly invokes this skill or asks to release/publish RandomDia
 - Addon version and project IDs are in `RandomDialogRP/RandomDialogRP.toc`.
 - The package layout and manual changelog configuration are in `.pkgmeta`.
 - `.github/workflows/release.yml` runs BigWigsMods/packager on numeric version tags.
-- That workflow publishes to Wago and CurseForge, creates a GitHub release, and uses `WAGO_API_TOKEN`, `CF_API_KEY`, and `GITHUB_TOKEN` secrets.
+- That workflow runs separate Wago, CurseForge, and GitHub release jobs, so a failure in one does not prevent attempts on the others. It uses `WAGO_API_TOKEN`, `CF_API_KEY`, and `GITHUB_TOKEN` secrets.
 - The addon source is under `RandomDialogRP/`. Do not include generated `releases/` archives in the commit.
 
 ## Procedure
@@ -26,9 +26,11 @@ When the user explicitly invokes this skill or asks to release/publish RandomDia
 
    `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`
 
-7. Create an annotated tag whose name exactly matches the TOC version, then push the current branch and that tag to its configured remote. Never force-push, amend, or overwrite an existing tag. If the target branch is behind or diverged, stop and resolve that before pushing.
-8. The tag push triggers `.github/workflows/release.yml`. Wait for that workflow to finish and verify that the packager reports successful uploads to both Wago and CurseForge, as well as a successful GitHub release. Use the GitHub Actions tools when available; otherwise use `gh` if authenticated. Do not report a platform as published based only on the tag push.
-9. If the workflow reports a missing/invalid token, do not request or print secret values. Explain which repository secret needs to be configured (`WAGO_API_TOKEN` or `CF_API_KEY`) and report any destinations that did succeed. Do not create a replacement tag or retry publication unless the user asks.
+7. Create an annotated tag whose name exactly matches the TOC version. Never force-push, amend, or overwrite an existing tag.
+8. Create `releases/RandomDialogRP-<version>.zip` from the tagged commit, with the `RandomDialogRP/` addon directory at the archive root. For this repository's current package layout on Windows, use `git archive --format=zip --output=releases\RandomDialogRP-<version>.zip <version> RandomDialogRP` after creating `releases/` if needed, substituting the version. Do not overwrite an existing archive; inspect and resolve the conflict first. Verify the archive contains the tagged addon files and the TOC version matches the tag. If the package layout or preprocessing in `.pkgmeta` changes, use the packager or an equivalent method instead.
+9. Push the current branch and tag to its configured remote. If the target branch is behind or diverged, stop and resolve that before pushing.
+10. The tag push triggers `.github/workflows/release.yml`. Wait for all three independent jobs to finish and verify the packager reports successful uploads to both Wago and CurseForge, as well as a successful GitHub release. Use the GitHub Actions tools when available; otherwise use `gh` if authenticated. Do not report a platform as published based only on the tag push or a successful job that skipped an upload.
+11. If a job reports a missing/invalid token, do not request or print secret values. Explain which repository secret needs to be configured (`WAGO_API_TOKEN` or `CF_API_KEY`) and report each destination's result. Do not create a replacement tag or retry publication unless the user asks.
 
 ## Safety and scope
 
