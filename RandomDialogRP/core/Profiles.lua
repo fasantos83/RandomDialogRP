@@ -76,6 +76,9 @@ function RandomDialogRP_Profiles.Activate(profileName)
     profile.settings = profile.settings or {}
     profile.settings.panel = profile.settings.panel or { point = "CENTER", relativePoint = "CENTER", xOfs = 0, yOfs = -100 }
     profile.settings.minimap = profile.settings.minimap or { angle = 45 }
+    if profile.settings.minimap.visible == nil then
+        profile.settings.minimap.visible = true
+    end
     profile.settings.language = profile.settings.language or "enUS"
     profile.settings.chatChannel = profile.settings.chatChannel or "SAY"
     profile.settings.activePersonality = profile.settings.activePersonality or "Default"

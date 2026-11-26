@@ -27,12 +27,20 @@ custom dialogue with a chosen emote.
 - Use `/rp` to show or hide the main panel.
 - Use `/rp config` or `/rp edit` to open the phrase manager.
 
+The tutorial appears on first use and after a major or minor version update.
+It can also appear after a feature update, and can always be reopened with
+**Settings > Tutorial**.
+
 ## Sending Dialogue
 
 1. Select a race and optionally a class from the main panel. Choose **None** to
    use race-wide phrases only.
 2. Choose Say, Yell, or Whisper as the chat channel.
 3. Click a category button to send a random phrase from that category.
+
+Dialogue is only sent when you click a quick action; the addon does not respond
+automatically. Hover over an action to see the total available phrases and the
+class/race breakdown for the current selection.
 
 When both class-specific and race-wide phrases are available, the addon chooses
 from the class-specific phrases 80% of the time and from the race-wide phrases

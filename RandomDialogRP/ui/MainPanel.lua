@@ -261,6 +261,23 @@ function CreateActionButton(category, posX, posY)
         ExecuteRP(category)
     end)
 
+    btn:SetScript("OnEnter", function(self)
+        local classData, raceData = GetActionPhraseData(category)
+        local classCount = classData and classData.phrases and #classData.phrases or 0
+        local raceCount = raceData and raceData.phrases and #raceData.phrases or 0
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(GetCategoryLabel(category), 1, 1, 1)
+        GameTooltip:AddLine(string.format(L("actionPhraseCount"), classCount + raceCount), 1, 1, 1)
+        GameTooltip:AddLine(string.format(L("actionPhraseBreakdown"), classCount, raceCount), 0.8, 0.8, 0.8)
+        if classCount + raceCount == 0 then
+            GameTooltip:AddLine(L("noPhrases"), 1, 0.3, 0.3, true)
+        end
+        GameTooltip:Show()
+    end)
+    btn:SetScript("OnLeave", function()
+        GameTooltip:Hide()
+    end)
+
     return btn
 end
 

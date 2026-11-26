@@ -332,7 +332,10 @@ function GetPhraseText(phrase)
 end
 
 function GetPhraseEmote(phrase, categoryData)
-    return (type(phrase) == "table" and phrase.emote) or (categoryData and categoryData.emote)
+    if type(phrase) == "table" and phrase.emote ~= nil then
+        return phrase.emote
+    end
+    return categoryData and categoryData.emote
 end
 
 function SetPhraseEmote(categoryData, index, emote)
@@ -367,10 +370,16 @@ function GetWhisperTarget()
     return UnitName("target")
 end
 
-function ExecuteRP(category)
-    local classData = currentClass and currentClass ~= "NONE" and GetPhraseCategoryData(currentPersonality, category, currentClass, nil, false)
-    local raceData = GetPhraseCategoryData(currentPersonality, category, nil, currentRace, false)
+function GetActionPhraseData(category)
+    local categoryData = GetPhraseCategoryData(currentPersonality, category, nil, nil, false)
+    local classData = categoryData and categoryData.classes and currentClass
+        and currentClass ~= "NONE" and categoryData.classes[currentClass]
+    local raceData = categoryData and categoryData.races and categoryData.races[currentRace]
+    return classData, raceData
+end
 
+function ExecuteRP(category)
+    local classData, raceData = GetActionPhraseData(category)
     local classPhrases = classData and classData.phrases or {}
     local racePhrases = raceData and raceData.phrases or {}
     local phrases = {}

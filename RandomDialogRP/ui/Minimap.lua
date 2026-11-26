@@ -8,9 +8,26 @@ RandomDialogRPMinimapButton:RegisterForDrag("LeftButton")
 
 function MoveMinimapButton(angle)
     local rad = math.rad(angle)
-    local x = math.cos(rad) * 80
-    local y = math.sin(rad) * 80
+    local radius = math.min(Minimap:GetWidth(), Minimap:GetHeight()) / 2 + 2
+    local x = math.cos(rad) * radius
+    local y = math.sin(rad) * radius
     RandomDialogRPMinimapButton:SetPoint("CENTER", Minimap, "CENTER", x, y)
+end
+
+function UpdateMinimapButtonVisibility()
+    RandomDialogRPMinimapButton:SetShown(
+        not RandomDialogRPDB.minimap or RandomDialogRPDB.minimap.visible ~= false
+    )
+end
+
+function SetMinimapButtonVisible(visible)
+    RandomDialogRPDB.minimap = RandomDialogRPDB.minimap or {}
+    RandomDialogRPDB.minimap.visible = not not visible
+    RandomDialogRP_Profiles.SaveActive()
+    UpdateMinimapButtonVisibility()
+    if RandomDialogRPMinimapToggle then
+        RandomDialogRPMinimapToggle:SetChecked(visible)
+    end
 end
 
 local iconTexture = RandomDialogRPMinimapButton:CreateTexture(nil, "BACKGROUND")
@@ -57,3 +74,5 @@ end)
 RandomDialogRPMinimapButton:SetScript("OnLeave", function()
     GameTooltip:Hide()
 end)
+
+UpdateMinimapButtonVisibility()

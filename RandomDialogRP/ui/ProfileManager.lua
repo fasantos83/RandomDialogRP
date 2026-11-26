@@ -2,6 +2,7 @@
 managerFrame = CreateFrame("Frame", "RandomDialogRPManager", UIParent, "BackdropTemplate")
 managerFrame:SetSize(700, 560)
 managerFrame:SetFrameStrata("DIALOG")
+managerFrame:SetToplevel(true)
 managerFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 managerFrame:SetMovable(true)
 managerFrame:EnableMouse(true)
@@ -356,6 +357,7 @@ function RefreshAfterProfileChange()
     if _G.RandomDialogRPMinimapButton and RandomDialogRPDB.minimap then
         MoveMinimapButton(RandomDialogRPDB.minimap.angle)
     end
+    UpdateMinimapButtonVisibility()
     RefreshMainClassDropDown()
     RefreshActionButtons()
     RefreshManagerUI()

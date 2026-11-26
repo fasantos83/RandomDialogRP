@@ -8,6 +8,7 @@ ignore:
   - README.md
   - CHANGELOG.md
   - tools
+  - tests
 
 manual-changelog:
   filename: CHANGELOG.md

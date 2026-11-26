@@ -20,10 +20,14 @@ RandomDialogRP_Locales = {
         phraseOrderValue = "Personality > Race/Class",
         chatChannelLabel = "Channel:",
         actionSectionTitle = "Quick Actions",
+        actionPhraseCount = "Available phrases: %d",
+        actionPhraseBreakdown = "Class: %d | Race: %d",
         phrasesTab = "Phrases",
         categoriesTab = "Categories",
         settingsTab = "Settings",
         phraseLabel = "Phrase:",
+        phrasePlaceholderTooltip = "Use %s in a phrase as a placeholder for your target's name. With no target, it becomes 'friend'.",
+        noEmote = "No emote",
         phraseClassLabel = "Class:",
         noneClass = "None",
         classPhraseFallback = "No class phrases yet; using race phrases.",
@@ -47,6 +51,8 @@ RandomDialogRP_Locales = {
         reloadWarning = "Changes require a UI Reload to apply correctly.",
         panelHidden = "Panel hidden.",
         panelShown = "Panel displayed.",
+        minimapToggle = "Show minimap button",
+        minimapShown = "Minimap button shown.",
         autoDetected = "Auto-detected race:",
         phraseAdded = "New phrase added!",
         phraseUpdated = "Phrase updated successfully!",
@@ -81,8 +87,28 @@ RandomDialogRP_Locales = {
         deletePersonalityConfirm = "Delete the personality '%s' and all its phrases? This cannot be undone.",
         categorySettingsTitle = "Personality & Category Settings",
         tutorialBtn = "Tutorial",
+        tutorialTooltip = "Show the welcome tutorial again.",
         tutorialTitle = "Welcome to RandomDialogRP",
-        tutorialBody = "Phrases are organized by:\nPersonality > Category > Race > Class\n\nOn the main panel, choose a Personality, Race, and Class, then click a category button to send one of its phrases to your selected chat channel. If a class has no phrases, the add-on uses that race's phrases.\n\nTo view or edit phrases, open Settings and choose Phrases. Select the Personality, Category, Race, and Class you want to manage. Choose None for phrases shared by all classes of a race.\n\nIn Settings, you can manage personalities and categories, change the language, and manage profiles. Use the Tutorial button to open this guide again.",
+        tutorialVersionUnavailable = "Could not read the addon version; major/minor tutorial updates cannot be detected.",
+        tutorialBody = "|cffffd100Quick actions|r\n"
+            .. "- Choose a personality, race, class, and chat channel on the main panel.\n"
+            .. "- Click a category to send a random phrase; nothing is sent automatically. Hover over a button to see its phrase count.\n"
+            .. "- Whisper requires a player target. A phrase's selected emote is performed when it is sent.\n\n"
+            .. "|cffffd100Race and class combinations|r\n"
+            .. "- Example: Default > Greetings > Human > None uses Human race phrases.\n"
+            .. "- Default > Greetings > Human > Mage can use Mage class phrases or Human race phrases. When both exist, class phrases are chosen 80% of the time and race phrases 20%.\n"
+            .. "- Class phrases are shared across races. If no class phrases exist, race phrases are used instead.\n\n"
+            .. "|cffffd100Writing and editing phrases|r\n"
+            .. "- Open Settings > Phrases to add, edit, search, or delete phrases for a personality and category. The editor's race and class selections are separate from the main panel.\n"
+            .. "- Use %s for the target's name: \"Hello, %s!\" becomes \"Hello, Lysa!\" when targeting Lysa, or \"Hello, friend!\" without a target.\n"
+            .. "- Use the emote picker beside a phrase to choose an emote or select No emote.\n\n"
+            .. "|cffffd100Settings and profiles|r\n"
+            .. "- Manage personalities, categories, icons, language, and profiles in Settings. Each profile has its own personalities and phrase collections.\n"
+            .. "- Use the Tutorial button to open this guide again.\n\n"
+            .. "|cffffd100Commands|r\n"
+            .. "- /rp: show or hide the main panel.\n"
+            .. "- /rp config: open the phrase manager.\n"
+            .. "- /rp minimap: show the minimap button if hidden in Settings.",
         tutorialCloseBtn = "Got it",
         profileTitle = "Profiles",
         currentProfile = "Current profile:",
@@ -122,10 +148,14 @@ RandomDialogRP_Locales = {
         phraseOrderValue = "Personalidade > Raça/Classe",
         chatChannelLabel = "Canal:",
         actionSectionTitle = "Ações Rápidas",
+        actionPhraseCount = "Frases disponíveis: %d",
+        actionPhraseBreakdown = "Classe: %d | Raça: %d",
         phrasesTab = "Frases",
         categoriesTab = "Categorias",
         settingsTab = "Configurações",
         phraseLabel = "Frase:",
+        phrasePlaceholderTooltip = "Use %s na frase como espaço reservado para o nome do alvo. Sem alvo, será substituído por 'friend'.",
+        noEmote = "Sem emote",
         phraseClassLabel = "Classe:",
         noneClass = "Nenhuma",
         classPhraseFallback = "Sem frases de classe; usando as frases da raça.",
@@ -149,6 +179,8 @@ RandomDialogRP_Locales = {
         reloadWarning = "Alterações exigem um Reload da UI para serem aplicadas.",
         panelHidden = "Painel ocultado.",
         panelShown = "Painel exibido.",
+        minimapToggle = "Exibir botão do minimapa",
+        minimapShown = "Botão do minimapa exibido.",
         autoDetected = "Raça detectada automaticamente:",
         phraseAdded = "Nova frase adicionada!",
         phraseUpdated = "Frase atualizada com sucesso!",
@@ -183,8 +215,28 @@ RandomDialogRP_Locales = {
         deletePersonalityConfirm = "Excluir a personalidade '%s' e todas as suas frases? Isso não pode ser desfeito.",
         categorySettingsTitle = "Configurações de Personalidade e Categoria",
         tutorialBtn = "Tutorial",
+        tutorialTooltip = "Exibe novamente o tutorial de boas-vindas.",
         tutorialTitle = "Bem-vindo ao RandomDialogRP",
-        tutorialBody = "As frases são organizadas por:\nPersonalidade > Categoria > Raça > Classe\n\nNo painel principal, escolha uma Personalidade, Raça e Classe; depois clique em uma categoria para enviar uma frase ao canal de bate-papo selecionado. Se uma classe não tiver frases, o addon usará as frases da raça.\n\nPara ver ou editar frases, abra Configurações e escolha Frases. Selecione a Personalidade, Categoria, Raça e Classe que deseja gerenciar. Escolha Nenhuma para frases compartilhadas por todas as classes de uma raça.\n\nEm Configurações, você pode gerenciar personalidades e categorias, mudar o idioma e gerenciar perfis. Use o botão Tutorial para abrir este guia novamente.",
+        tutorialVersionUnavailable = "Não foi possível ler a versão do addon; atualizações principais do tutorial não podem ser detectadas.",
+        tutorialBody = "|cffffd100Ações rápidas|r\n"
+            .. "- Escolha personalidade, raça, classe e canal de bate-papo no painel principal.\n"
+            .. "- Clique em uma categoria para enviar uma frase aleatória; nada é enviado automaticamente. Passe o mouse sobre o botão para ver a quantidade de frases.\n"
+            .. "- Sussurrar requer um jogador como alvo. O emote escolhido para a frase é executado ao enviá-la.\n\n"
+            .. "|cffffd100Combinações de raça e classe|r\n"
+            .. "- Exemplo: Default > Saudações > Human > Nenhuma usa frases da raça Human.\n"
+            .. "- Default > Saudações > Human > Mago pode usar frases de Mago ou de Human. Se houver ambas, a chance é de 80% para classe e 20% para raça.\n"
+            .. "- Frases de classe são compartilhadas entre raças. Sem frases de classe, são usadas as frases da raça.\n\n"
+            .. "|cffffd100Criar e editar frases|r\n"
+            .. "- Abra Configurações > Frases para adicionar, editar, buscar ou excluir frases de uma personalidade e categoria. As seleções de raça e classe do editor são independentes do painel principal.\n"
+            .. "- Use %s para o nome do alvo: \"Olá, %s!\" vira \"Olá, Lysa!\" ao selecionar Lysa, ou \"Olá, friend!\" sem alvo.\n"
+            .. "- Use o seletor de emote ao lado da frase para escolher um emote ou Sem emote.\n\n"
+            .. "|cffffd100Configurações e perfis|r\n"
+            .. "- Gerencie personalidades, categorias, ícones, idioma e perfis em Configurações. Cada perfil tem suas próprias personalidades e coleções de frases.\n"
+            .. "- Use o botão Tutorial para abrir este guia novamente.\n\n"
+            .. "|cffffd100Comandos|r\n"
+            .. "- /rp: exibir ou ocultar o painel principal.\n"
+            .. "- /rp config: abrir o gerenciador de frases.\n"
+            .. "- /rp minimap: exibir o botão do minimapa se estiver oculto nas Configurações.",
         tutorialCloseBtn = "Entendi",
         profileTitle = "Perfis",
         currentProfile = "Perfil atual:",

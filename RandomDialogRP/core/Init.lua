@@ -53,6 +53,7 @@ function InitializeAddon()
     if RandomDialogRPDB.minimap and RandomDialogRPDB.minimap.angle then
         MoveMinimapButton(RandomDialogRPDB.minimap.angle)
     end
+    UpdateMinimapButtonVisibility()
 end
 
 eventFrame:SetScript("OnEvent", function(self, event, addonName)
@@ -70,6 +71,9 @@ SlashCmdList["RANDOMDIALOGRP"] = function(msg)
     elseif msg == "config" or msg == "edit" then
         RefreshManagerUI()
         managerFrame:Show()
+    elseif msg == "minimap" then
+        SetMinimapButtonVisible(true)
+        print("|cFF00FF00[RandomDialogRP]|r " .. L("minimapShown"))
     elseif frame:IsShown() then
         frame:Hide()
         print("|cFF00FF00[RandomDialogRP]|r " .. L("panelHidden"))

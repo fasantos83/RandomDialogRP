@@ -166,6 +166,20 @@ langDropDown = CreateFrame("Frame", "RandomDialogRPLangDropDown", managerFrame, 
 langDropDown:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 8, -85)
 UIDropDownMenu_SetWidth(langDropDown, 80)
 
+RandomDialogRPMinimapToggle = CreateFrame(
+    "CheckButton",
+    "RandomDialogRPMinimapToggle",
+    managerFrame,
+    "UICheckButtonTemplate"
+)
+RandomDialogRPMinimapToggle:SetSize(26, 26)
+RandomDialogRPMinimapToggle:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 295, -80)
+RandomDialogRPMinimapToggle.label = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+RandomDialogRPMinimapToggle.label:SetPoint("LEFT", RandomDialogRPMinimapToggle, "RIGHT", 2, 0)
+RandomDialogRPMinimapToggle:SetScript("OnClick", function(self)
+    SetMinimapButtonVisible(self:GetChecked())
+end)
+
 function LangDropDown_OnClick(self)
     RandomDialogRPDB.language = self.value
     UIDropDownMenu_SetSelectedValue(langDropDown, RandomDialogRPDB.language)
@@ -199,6 +213,15 @@ editBox = CreateFrame("EditBox", nil, managerFrame, "InputBoxTemplate")
 editBox:SetSize(300, 20)
 editBox:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 18, -165)
 editBox:SetAutoFocus(false)
+editBox:HookScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_TOP")
+    GameTooltip:SetText(L("phraseLabel"), 1, 1, 1)
+    GameTooltip:AddLine(L("phrasePlaceholderTooltip"), 1, 1, 1, true)
+    GameTooltip:Show()
+end)
+editBox:HookScript("OnLeave", function()
+    GameTooltip:Hide()
+end)
 
 phraseEntryLabel = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 phraseEntryLabel:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 20, -154)
@@ -398,6 +421,7 @@ function SetManagerTab(tab)
     else
         PlaceManagerControl(languageSectionLabel, 145, -75)
         PlaceManagerControl(langDropDown, 135, -85)
+        PlaceManagerControl(RandomDialogRPMinimapToggle, 295, -80)
         PlaceManagerControl(personalityLabel, 145, -380)
         PlaceManagerControl(personalityDropDown, 135, -390)
         UIDropDownMenu_SetWidth(personalityDropDown, 110)
@@ -440,6 +464,8 @@ function SetManagerTab(tab)
     categoryIconBtn:SetShown(showSettings)
     languageSectionLabel:SetShown(showSettings)
     langDropDown:SetShown(showSettings)
+    RandomDialogRPMinimapToggle:SetShown(showSettings)
+    RandomDialogRPMinimapToggle.label:SetShown(showSettings)
     personalityLabel:SetShown(showSettings)
     personalityDropDown:SetShown(showSettings)
     personalityNameLabel:SetShown(showSettings)
@@ -483,8 +509,10 @@ function SetManagerTab(tab)
 end
 
 local tutorialFrame = CreateFrame("Frame", "RandomDialogRPTutorialFrame", UIParent, "BackdropTemplate")
-tutorialFrame:SetSize(520, 365)
-tutorialFrame:SetFrameStrata("DIALOG")
+tutorialFrame:SetSize(520, 480)
+RegisterResponsiveFrame(tutorialFrame)
+tutorialFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+tutorialFrame:SetFrameLevel(managerFrame:GetFrameLevel() + 10)
 tutorialFrame:SetToplevel(true)
 tutorialFrame:SetClampedToScreen(true)
 tutorialFrame:EnableMouse(true)
@@ -505,9 +533,23 @@ tutorialTitle:SetPoint("TOPLEFT", tutorialFrame, "TOPLEFT", 28, -24)
 tutorialTitle:SetWidth(450)
 tutorialTitle:SetJustifyH("LEFT")
 
-local tutorialBody = tutorialFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-tutorialBody:SetPoint("TOPLEFT", tutorialTitle, "BOTTOMLEFT", 0, -18)
-tutorialBody:SetSize(464, 255)
+local tutorialScroll = CreateFrame("ScrollFrame", "RandomDialogRPTutorialScrollFrame", tutorialFrame, "UIPanelScrollFrameTemplate")
+tutorialScroll:SetPoint("TOPLEFT", tutorialTitle, "BOTTOMLEFT", 0, -18)
+tutorialScroll:SetPoint("BOTTOMRIGHT", tutorialFrame, "BOTTOMRIGHT", -42, 65)
+tutorialScroll:EnableMouseWheel(true)
+tutorialScroll:SetScript("OnMouseWheel", function(self, delta)
+    self:SetVerticalScroll(math.max(0, math.min(
+        self:GetVerticalScrollRange(), self:GetVerticalScroll() - delta * 32
+    )))
+end)
+
+local tutorialContent = CreateFrame("Frame", nil, tutorialScroll)
+tutorialContent:SetSize(450, 1)
+tutorialScroll:SetScrollChild(tutorialContent)
+
+local tutorialBody = tutorialContent:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+tutorialBody:SetPoint("TOPLEFT", tutorialContent, "TOPLEFT", 0, 0)
+tutorialBody:SetWidth(444)
 tutorialBody:SetJustifyH("LEFT")
 tutorialBody:SetJustifyV("TOP")
 tutorialBody:SetWordWrap(true)
@@ -520,21 +562,44 @@ tutorialCloseBtn:SetScript("OnClick", function() tutorialFrame:Hide() end)
 RandomDialogRP_UI.StyleButton(tutorialCloseBtn)
 
 local function ShowTutorial()
+    tutorialFrame:Show()
     tutorialTitle:SetText(L("tutorialTitle"))
     tutorialBody:SetText(L("tutorialBody"))
+    tutorialContent:SetHeight(math.max(1, tutorialBody:GetStringHeight() + 8))
+    tutorialScroll:SetVerticalScroll(0)
     tutorialCloseBtn:SetText(L("tutorialCloseBtn"))
-    tutorialFrame:Show()
     tutorialFrame:Raise()
 end
 
-local function MaybeShowTutorial()
-    local seenVersion = tonumber(RandomDialogRPDB and RandomDialogRPDB.tutorialVersion) or 0
-    if seenVersion >= 1 then return end
+-- Increment when a new feature should be introduced outside a major/minor release.
+local tutorialRevision = 2
+local tutorialVersionWarningShown = false
 
-    RandomDialogRPDB.tutorialVersion = 1
+local function MaybeShowTutorial()
+    local seenRevision = tonumber(RandomDialogRPDB.tutorialVersion) or 0
+    local major, minor = string.match(addonVersion, "^(%d+)%.(%d+)")
+    major, minor = tonumber(major), tonumber(minor)
+    if not major and not tutorialVersionWarningShown then
+        print("|cFFFF0000[RandomDialogRP]|r " .. L("tutorialVersionUnavailable"))
+        tutorialVersionWarningShown = true
+    end
+
+    local seenMajor = tonumber(RandomDialogRPDB.tutorialReleaseMajor)
+    local seenMinor = tonumber(RandomDialogRPDB.tutorialReleaseMinor)
+    local newRelease = major and (not seenMajor or not seenMinor
+        or major > seenMajor or (major == seenMajor and minor > seenMinor))
+
+    if seenRevision >= tutorialRevision and not newRelease then return end
+
+    RandomDialogRPDB.tutorialVersion = math.max(seenRevision, tutorialRevision)
+    if newRelease then
+        RandomDialogRPDB.tutorialReleaseMajor = major
+        RandomDialogRPDB.tutorialReleaseMinor = minor
+    end
     ShowTutorial()
 end
 
+table.insert(UISpecialFrames, "RandomDialogRPManager")
 table.insert(UISpecialFrames, "RandomDialogRPTutorialFrame")
 
 phraseTab.label:SetText(L("phrasesTab"))
@@ -543,31 +608,52 @@ phraseTab:SetScript("OnClick", function() SetManagerTab("phrases") end)
 settingsTab:SetScript("OnClick", function() SetManagerTab("settings") end)
 SetManagerTab(selectedManagerTab)
 
+local activeEmotePopup
+local activeEmoteSelector
+local emotePopupMouseListener = CreateFrame("Frame")
+emotePopupMouseListener:SetScript("OnEvent", function()
+    if activeEmotePopup and not activeEmotePopup:IsMouseOver() and not activeEmoteSelector:IsMouseOver() then
+        activeEmotePopup:Hide()
+    end
+end)
+
 function CreateEmoteSelector(parent, categoryData, phrases, phraseIndex)
     local selector = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
     selector:SetSize(78, 20)
-    selector:SetText(GetPhraseEmote(phrases[phraseIndex], categoryData) or L("emoteLabel"))
+    local phraseEmote = GetPhraseEmote(phrases[phraseIndex], categoryData)
+    selector:SetText(
+        phraseEmote == false and L("noEmote") or phraseEmote or L("emoteLabel")
+    )
     RandomDialogRP_UI.StyleButton(selector)
 
     local popup = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
     popup:SetSize(125, 165)
-    popup:SetFrameStrata("DIALOG")
+    popup:SetFrameStrata("TOOLTIP")
+    popup:SetToplevel(true)
+    popup:EnableMouse(true)
     popup:SetBackdrop({
-        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-        tile = true, tileSize = 32, edgeSize = 16,
+        tile = false, edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
-    popup:SetBackdropColor(0, 0, 0, 0.75)
-    popup:SetBackdropBorderColor(0.65, 0.65, 0.65, 1)
+    popup:SetBackdropColor(0, 0, 0, 1)
+    popup:SetBackdropBorderColor(1, 1, 1, 1)
     popup:Hide()
+    popup:HookScript("OnHide", function(self)
+        if activeEmotePopup == self then
+            activeEmotePopup = nil
+            activeEmoteSelector = nil
+            emotePopupMouseListener:UnregisterEvent("GLOBAL_MOUSE_DOWN")
+        end
+    end)
 
     local scroll = CreateFrame("ScrollFrame", nil, popup, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", popup, "TOPLEFT", 5, -5)
     scroll:SetPoint("BOTTOMRIGHT", popup, "BOTTOMRIGHT", -25, 5)
 
     local content = CreateFrame("Frame", nil, scroll)
-    content:SetSize(90, #emoteOptions * 18)
+    content:SetSize(90, (#emoteOptions + 1) * 18)
     scroll:SetScrollChild(content)
     local selectedMarkers = {}
 
@@ -577,10 +663,31 @@ function CreateEmoteSelector(parent, categoryData, phrases, phraseIndex)
         end
     end
 
+    local noneOption = CreateFrame("Button", nil, content)
+    noneOption:SetSize(90, 18)
+    noneOption:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
+    noneOption:SetHighlightFontObject(GameFontHighlight)
+
+    local noneText = noneOption:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    noneText:SetPoint("LEFT", noneOption, "LEFT", 12, 0)
+    noneText:SetPoint("RIGHT", noneOption, "RIGHT", 0, 0)
+    noneText:SetText(L("noEmote"))
+    local noneMarker = noneOption:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    noneMarker:SetPoint("LEFT", noneOption, "LEFT", 0, 0)
+    noneMarker:SetSize(12, 18)
+    selectedMarkers[false] = noneMarker
+
+    noneOption:SetScript("OnClick", function()
+        SetPhraseEmote(categoryData, phraseIndex, false)
+        selector:SetText(L("noEmote"))
+        RefreshSelection(false)
+        popup:Hide()
+    end)
+
     for optionIndex, emote in ipairs(emoteOptions) do
         local option = CreateFrame("Button", nil, content)
         option:SetSize(90, 18)
-        option:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -((optionIndex - 1) * 18))
+        option:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -(optionIndex * 18))
         option:SetHighlightFontObject(GameFontHighlight)
 
         local text = option:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -605,9 +712,15 @@ function CreateEmoteSelector(parent, categoryData, phrases, phraseIndex)
         if popup:IsShown() then
             popup:Hide()
         else
+            if activeEmotePopup then activeEmotePopup:Hide() end
             popup:ClearAllPoints()
             popup:SetPoint("BOTTOMLEFT", selector, "TOPLEFT", 0, 2)
+            popup:SetFrameLevel(managerFrame:GetFrameLevel() + 10)
+            activeEmotePopup = popup
+            activeEmoteSelector = selector
+            emotePopupMouseListener:RegisterEvent("GLOBAL_MOUSE_DOWN")
             popup:Show()
+            popup:Raise()
         end
     end)
 
@@ -622,7 +735,9 @@ function CreateIconSelector()
     local selector = categoryIconBtn
     local popup = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
     popup:SetSize(300, 235)
-    popup:SetFrameStrata("DIALOG")
+    popup:SetFrameStrata("TOOLTIP")
+    popup:SetToplevel(true)
+    popup:EnableMouse(true)
     popup:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
         edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
@@ -666,7 +781,9 @@ function CreateIconSelector()
         else
             popup:ClearAllPoints()
             popup:SetPoint("TOPLEFT", selector, "BOTTOMLEFT", 0, -2)
+            popup:SetFrameLevel(managerFrame:GetFrameLevel() + 10)
             popup:Show()
+            popup:Raise()
         end
     end)
     managerFrame:HookScript("OnHide", function()
@@ -795,6 +912,10 @@ RefreshManagerUI = function()
     phraseRaceLabel:SetText(L("raceLabel"))
     phraseClassLabel:SetText(L("phraseClassLabel"))
     languageSectionLabel:SetText(L("languageLabel"))
+    RandomDialogRPMinimapToggle.label:SetText(L("minimapToggle"))
+    RandomDialogRPMinimapToggle:SetChecked(
+        not RandomDialogRPDB.minimap or RandomDialogRPDB.minimap.visible ~= false
+    )
     SetManagerTab(selectedManagerTab)
 
     UIDropDownMenu_SetSelectedValue(phraseRaceDropDown, selectedPhraseRace)
@@ -874,8 +995,11 @@ renameCategoryBtn:SetScript("OnClick", function()
         print("|cFFFF0000[RandomDialogRP]|r " .. L("categoryExists"))
         return
     end
+    if name == GetCategoryLabel(selectedCategory) then return end
     local personalityData = RandomDialogRP_CustomDB[currentPersonality]
     if IsBuiltinCategory(selectedCategory) then
+        personalityData[selectedCategory].label = name
+    elseif name == selectedCategory then
         personalityData[selectedCategory].label = name
     else
         local oldCategory = selectedCategory
@@ -1009,6 +1133,7 @@ StaticPopupDialogs["RANDOMDIALOGRP_RESET_CONFIRM"] = {
         frame:ClearAllPoints()
         frame:SetPoint("CENTER", UIParent, "CENTER", 0, -100)
         MoveMinimapButton(45)
+        UpdateMinimapButtonVisibility()
         selectedCategory = "greetings"
         selectedPhraseRace = currentRace
         selectedPhraseClass = "NONE"
@@ -1048,10 +1173,18 @@ end)
 
 tutorialBtn = CreateFrame("Button", nil, managerFrame, "UIPanelButtonTemplate")
 tutorialBtn:SetSize(140, 24)
-tutorialBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 300, -85)
+tutorialBtn:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 480, -85)
 tutorialBtn:SetText(L("tutorialBtn"))
 RandomDialogRP_UI.StyleButton(tutorialBtn)
 tutorialBtn:SetScript("OnClick", ShowTutorial)
+tutorialBtn:HookScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_TOP")
+    GameTooltip:SetText(L("tutorialTooltip"), 1, 1, 1)
+    GameTooltip:Show()
+end)
+tutorialBtn:HookScript("OnLeave", function()
+    GameTooltip:Hide()
+end)
 tutorialBtn:SetShown(selectedManagerTab == "settings")
 
 frame:HookScript("OnShow", MaybeShowTutorial)
