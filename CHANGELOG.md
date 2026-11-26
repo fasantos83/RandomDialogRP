@@ -1,3 +1,9 @@
+## 4.1.1 - 2026-11-26
+
+### Changed
+
+- Internal development improvements.
+
 ## 4.1.0 - 2026-11-26
 
 ### Added
