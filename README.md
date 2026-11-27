@@ -14,6 +14,7 @@ custom dialogue with a chosen emote.
 - Chooses a phrase at random and avoids immediate repeats when alternatives
   exist.
 - Supports custom phrases, categories, category icons, and per-phrase emotes.
+- Provides a bindable wheel for category actions and standalone emotes.
 - Includes searchable phrases and multi-line previews for longer text.
 - Organizes phrase, category, language, and profile controls in the phrase
   manager's tabs.
@@ -50,6 +51,29 @@ you can edit another combination without changing the main panel selection.
 Whisper sends the phrase to your current player target. If a phrase contains
 `%s`, the addon's target name is inserted; without a target, it uses `friend`.
 The phrase's assigned emote is performed automatically.
+
+## Emote Wheel
+
+Assign **Toggle Emote Wheel** in WoW's Key Bindings under RandomDialogRP.
+The wheel shows up to ten options per page. Its center button displays the
+current view and switches between categories and emotes; the side arrows
+change pages. Category buttons show their configured icons and send a random
+phrase using the current main-panel settings. Emote buttons perform the
+selected WoW emote without a phrase. Hover over an option to see its full name.
+Drag the wheel's title to move it; its position is saved per profile.
+Press Escape or click outside the wheel to close it. Mouse input outside the
+wheel remains available for normal movement and interaction.
+
+Open the manager's **Wheel** tab to add, remove, and reorder buttons in each
+view. Removing a button does not delete the category, its phrases, or the emote.
+Category choices are saved per personality and new categories appear
+automatically. Emote choices are shared by personalities within the profile.
+The **Settings** tab controls which view the wheel opens in and can remember
+the last page where an option was selected separately for each view. This
+setting and the remembered pages are saved per profile.
+Older saved `LOL`, `SORRY`, and `YES` selections use the equivalent WoW emotes.
+Unsupported legacy wheel entries, such as `CHEST`, are omitted. For a phrase
+using an unsupported emote, choose a replacement in the phrase picker.
 
 ## Managing Phrases and Categories
 

@@ -29,7 +29,9 @@ function RandomDialogRP_Profiles.EnsureStore()
             language = RandomDialogRPDB.language,
             chatChannel = RandomDialogRPDB.chatChannel,
             rpClass = RandomDialogRPDB.rpClass,
-            activePersonality = RandomDialogRPDB.activePersonality
+            activePersonality = RandomDialogRPDB.activePersonality,
+            emoteWheelMode = RandomDialogRPDB.emoteWheelMode,
+            emoteWheel = RandomDialogRPDB.emoteWheel
         }
         RandomDialogRPDB.profiles = {
             Default = {
@@ -82,6 +84,13 @@ function RandomDialogRP_Profiles.Activate(profileName)
     profile.settings.language = profile.settings.language or "enUS"
     profile.settings.chatChannel = profile.settings.chatChannel or "SAY"
     profile.settings.activePersonality = profile.settings.activePersonality or "Default"
+    profile.settings.emoteWheelMode = profile.settings.emoteWheelMode
+        or RandomDialogRPDB.emoteWheelMode
+    if profile.settings.emoteWheelMode ~= "emotes" then
+        profile.settings.emoteWheelMode = "categories"
+    end
+    profile.settings.emoteWheel = profile.settings.emoteWheel or { categories = {} }
+    profile.settings.emoteWheel.categories = profile.settings.emoteWheel.categories or {}
 
     profile.custom = profile.custom or {}
     profile.name = profile.name or profileName
@@ -93,6 +102,8 @@ function RandomDialogRP_Profiles.Activate(profileName)
     RandomDialogRPDB.chatChannel = profile.settings.chatChannel
     RandomDialogRPDB.rpClass = profile.settings.rpClass
     RandomDialogRPDB.activePersonality = profile.settings.activePersonality
+    RandomDialogRPDB.emoteWheelMode = profile.settings.emoteWheelMode
+    RandomDialogRPDB.emoteWheel = profile.settings.emoteWheel
 
     currentClass = profile.settings.rpClass
     currentPersonality = profile.settings.activePersonality
@@ -124,6 +135,8 @@ function RandomDialogRP_Profiles.SaveActive()
         profile.settings.chatChannel = RandomDialogRPDB.chatChannel
         profile.settings.rpClass = RandomDialogRPDB.rpClass
         profile.settings.activePersonality = RandomDialogRPDB.activePersonality
+        profile.settings.emoteWheelMode = RandomDialogRPDB.emoteWheelMode
+        profile.settings.emoteWheel = RandomDialogRPDB.emoteWheel
         profile.custom = RandomDialogRP_CustomDB
     end
 end

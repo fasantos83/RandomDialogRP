@@ -174,6 +174,7 @@ createPersonalityBtn:SetScript("OnClick", function()
         return
     end
     RandomDialogRP_CustomDB[name] = RandomDialogRP_Profiles.Copy(activeData)
+    RandomDialogRP_Wheel.CopyPersonality(currentPersonality, name)
     RandomDialogRPDB.activePersonality = name
     currentPersonality = name
     personalityNameBox:SetText("")
@@ -200,6 +201,7 @@ renamePersonalityBtn:SetScript("OnClick", function()
 
     RandomDialogRP_CustomDB[name] = RandomDialogRP_CustomDB[oldName]
     RandomDialogRP_CustomDB[oldName] = nil
+    RandomDialogRP_Wheel.RenamePersonality(oldName, name)
     RandomDialogRPDB.activePersonality = name
     currentPersonality = name
     RandomDialogRP_Profiles.SaveActive()
@@ -233,6 +235,7 @@ StaticPopupDialogs["RANDOMDIALOGRP_DELETE_PERSONALITY_CONFIRM"] = {
         if name == "Default" or not RandomDialogRP_CustomDB[name] then return end
         local wasActive = RandomDialogRPDB.activePersonality == name
         RandomDialogRP_CustomDB[name] = nil
+        RandomDialogRP_Wheel.DeletePersonality(name)
         if wasActive then
             RandomDialogRPDB.activePersonality = "Default"
             currentPersonality = "Default"
@@ -354,6 +357,7 @@ function RefreshAfterProfileChange()
             RandomDialogRPDB.panel.yOfs
         )
     end
+    RandomDialogRP_Wheel.RestorePosition()
     if _G.RandomDialogRPMinimapButton and RandomDialogRPDB.minimap then
         MoveMinimapButton(RandomDialogRPDB.minimap.angle)
     end

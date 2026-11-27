@@ -22,12 +22,35 @@ RandomDialogRP_Locales = {
         actionSectionTitle = "Quick Actions",
         actionPhraseCount = "Available phrases: %d",
         actionPhraseBreakdown = "Class: %d | Race: %d",
+        emoteWheelTitle = "RandomDialogRP\nEmote Wheel",
+        emoteWheelCategories = "Categories",
+        emoteWheelEmotes = "Emotes",
+        emoteWheelPage = "Page %d of %d",
+        emoteWheelToggleTooltip = "Switch between categories and emotes.",
+        emoteWheelDragTooltip = "Drag the title to move the wheel.",
+        emoteWheelBinding = "Toggle Emote Wheel",
+        emoteWheelSettingsTitle = "Emote Wheel",
+        emoteWheelModeLabel = "Open wheel in:",
+        emoteWheelRememberPage = "Remember selected page",
+        emoteWheelBindingHint = "The center button switches views. Bind Toggle Emote Wheel in Key Bindings to open it.",
+        wheelTab = "Wheel",
+        wheelEditorTitle = "Configure Emote Wheel",
+        wheelEditorHelp = "Choose a view, then add, remove, or reorder its buttons. Category choices are specific to the active personality.",
+        wheelIncluded = "On the wheel",
+        wheelAvailable = "Available",
+        wheelAdd = "Add to wheel",
+        wheelRemove = "Remove from wheel",
+        wheelMoveUp = "Move earlier",
+        wheelMoveDown = "Move later",
+        wheelEmpty = "None",
         phrasesTab = "Phrases",
         categoriesTab = "Categories",
         settingsTab = "Settings",
         phraseLabel = "Phrase:",
         phrasePlaceholderTooltip = "Use %s in a phrase as a placeholder for your target's name. With no target, it becomes 'friend'.",
         noEmote = "No emote",
+        unsupportedEmote = "Emote %s is not supported by this client. Choose another emote in the phrase or Wheel tab.",
+        restrictedEmote = "Emote %s is restricted for your character.",
         phraseClassLabel = "Class:",
         noneClass = "None",
         classPhraseFallback = "No class phrases yet; using race phrases.",
@@ -102,6 +125,14 @@ RandomDialogRP_Locales = {
             .. "- Open Settings > Phrases to add, edit, search, or delete phrases for a personality and category. The editor's race and class selections are separate from the main panel.\n"
             .. "- Use %s for the target's name: \"Hello, %s!\" becomes \"Hello, Lysa!\" when targeting Lysa, or \"Hello, friend!\" without a target.\n"
             .. "- Use the emote picker beside a phrase to choose an emote or select No emote.\n\n"
+            .. "|cffffd100Emote wheel|r\n"
+            .. "- Bind Toggle Emote Wheel under RandomDialogRP in Key Bindings. Press the binding to open or close the wheel; Escape or clicking outside it also closes it.\n"
+            .. "- Drag the wheel's title to move it. Its position is saved in the current profile.\n"
+            .. "- In Settings > Emote Wheel, enable Remember selected page to reopen each view on the last page where you chose an option.\n"
+            .. "- The center shows the current view and switches between Categories and Emotes. Use the side arrows for more pages and hover over an option to see its full name.\n"
+            .. "- Categories send a random phrase using the main panel selections; Emotes perform only the chosen WoW emote.\n"
+            .. "- Open the Wheel tab in the manager to add (+), remove (-), or reorder (^) and (v) options. Removing an option from the wheel does not delete it or its phrases.\n"
+            .. "- Category choices belong to the active personality; new categories are added automatically. Emote choices are shared within the profile. Settings > Open wheel in changes the current view.\n\n"
             .. "|cffffd100Settings and profiles|r\n"
             .. "- Manage personalities, categories, icons, language, and profiles in Settings. Each profile has its own personalities and phrase collections.\n"
             .. "- Use the Tutorial button to open this guide again.\n\n"
@@ -150,12 +181,35 @@ RandomDialogRP_Locales = {
         actionSectionTitle = "Ações Rápidas",
         actionPhraseCount = "Frases disponíveis: %d",
         actionPhraseBreakdown = "Classe: %d | Raça: %d",
+        emoteWheelTitle = "RandomDialogRP\nRoda de Emotes",
+        emoteWheelCategories = "Categorias",
+        emoteWheelEmotes = "Emotes",
+        emoteWheelPage = "Página %d de %d",
+        emoteWheelToggleTooltip = "Alterna entre categorias e emotes.",
+        emoteWheelDragTooltip = "Arraste o título para mover a roda.",
+        emoteWheelBinding = "Alternar Roda de Emotes",
+        emoteWheelSettingsTitle = "Roda de Emotes",
+        emoteWheelModeLabel = "Abrir roda em:",
+        emoteWheelRememberPage = "Lembrar página selecionada",
+        emoteWheelBindingHint = "O botão central alterna as visualizações. Vincule Alternar Roda de Emotes nas Teclas de Atalho para abri-la.",
+        wheelTab = "Roda",
+        wheelEditorTitle = "Configurar Roda de Emotes",
+        wheelEditorHelp = "Escolha uma visualização e adicione, remova ou reordene seus botões. As categorias são específicas da personalidade ativa.",
+        wheelIncluded = "Na roda",
+        wheelAvailable = "Disponíveis",
+        wheelAdd = "Adicionar à roda",
+        wheelRemove = "Remover da roda",
+        wheelMoveUp = "Mover para cima",
+        wheelMoveDown = "Mover para baixo",
+        wheelEmpty = "Nenhum",
         phrasesTab = "Frases",
         categoriesTab = "Categorias",
         settingsTab = "Configurações",
         phraseLabel = "Frase:",
         phrasePlaceholderTooltip = "Use %s na frase como espaço reservado para o nome do alvo. Sem alvo, será substituído por 'friend'.",
         noEmote = "Sem emote",
+        unsupportedEmote = "O emote %s não é compatível com este cliente. Escolha outro emote na frase ou na aba Roda.",
+        restrictedEmote = "O emote %s está restrito para seu personagem.",
         phraseClassLabel = "Classe:",
         noneClass = "Nenhuma",
         classPhraseFallback = "Sem frases de classe; usando as frases da raça.",
@@ -230,6 +284,14 @@ RandomDialogRP_Locales = {
             .. "- Abra Configurações > Frases para adicionar, editar, buscar ou excluir frases de uma personalidade e categoria. As seleções de raça e classe do editor são independentes do painel principal.\n"
             .. "- Use %s para o nome do alvo: \"Olá, %s!\" vira \"Olá, Lysa!\" ao selecionar Lysa, ou \"Olá, friend!\" sem alvo.\n"
             .. "- Use o seletor de emote ao lado da frase para escolher um emote ou Sem emote.\n\n"
+            .. "|cffffd100Roda de emotes|r\n"
+            .. "- Vincule Alternar Roda de Emotes em RandomDialogRP nas Teclas de Atalho. Pressione a tecla para abrir ou fechar a roda; Esc ou clicar fora dela também a fecha.\n"
+            .. "- Arraste o título da roda para movê-la. A posição é salva no perfil atual.\n"
+            .. "- Em Configurações > Roda de Emotes, ative Lembrar página selecionada para reabrir cada visualização na última página em que escolheu uma opção.\n"
+            .. "- O centro mostra a visualização atual e alterna entre Categorias e Emotes. Use as setas laterais para mudar de página e passe o mouse sobre uma opção para ver seu nome completo.\n"
+            .. "- Categorias enviam uma frase aleatória usando as escolhas do painel principal; Emotes executam apenas o emote escolhido do WoW.\n"
+            .. "- Abra a aba Roda no gerenciador para adicionar (+), remover (-) ou reordenar (^) e (v) opções. Remover uma opção da roda não a exclui nem apaga suas frases.\n"
+            .. "- As categorias são específicas da personalidade ativa; novas categorias são adicionadas automaticamente. Os emotes são compartilhados no perfil. Configurações > Abrir roda em altera a visualização atual.\n\n"
             .. "|cffffd100Configurações e perfis|r\n"
             .. "- Gerencie personalidades, categorias, ícones, idioma e perfis em Configurações. Cada perfil tem suas próprias personalidades e coleções de frases.\n"
             .. "- Use o botão Tutorial para abrir este guia novamente.\n\n"
@@ -268,3 +330,8 @@ function L(key)
     end
     return RandomDialogRP_Locales["enUS"][key] or key
 end
+
+local bindingLocale = GetLocale and GetLocale() or "enUS"
+local bindingStrings = RandomDialogRP_Locales[bindingLocale] or RandomDialogRP_Locales.enUS
+BINDING_HEADER_RANDOMDIALOGRP = "RandomDialogRP"
+BINDING_NAME_RANDOMDIALOGRP_TOGGLE_EMOTE_WHEEL = bindingStrings.emoteWheelBinding

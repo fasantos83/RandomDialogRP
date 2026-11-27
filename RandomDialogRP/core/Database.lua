@@ -96,7 +96,7 @@ RandomDialogRP_Defaults = {
                 Troll = { phrases = { "Da dark spear strikes true! Taste dis, %s!", "Here comes da pain, %s!", "For da Darkspear! Taz'dingo!", "Ya gonna bleed for dat mistake, %s!" }, emote = "ROAR" },
                 Undead = { phrases = { "Victory for Sylvanas! Feel the chill of the grave, %s!", "Join us in eternal torment, %s!", "Your flesh will rot just like the rest!", "The blight take you, %s!" }, emote = "CACKLE" },
                 Human = { phrases = { "For the Alliance! Stand and fight, %s!", "For the King and the Lion!", "Hold the line! Strike true!", "Your advance ends right here, %s!" }, emote = "ROAR" },
-                Dwarf = { phrases = { "Khaz Modan! Taste steel, %s!", "For Ironforge! Let's break their ranks!", "Yer armor won't save ye from this hammer, %s!", "Eat iron and thunder, %s!" }, emote = "CHEST" },
+                Dwarf = { phrases = { "Khaz Modan! Taste steel, %s!", "For Ironforge! Let's break their ranks!", "Yer armor won't save ye from this hammer, %s!", "Eat iron and thunder, %s!" }, emote = "ROAR" },
                 NightElf = { phrases = { "For Kalimdor and the Sentinels!", "By Elune's wrath, fall before me, %s!", "The shadows will claim you, %s!", "You trespass on sacred ground!" }, emote = "ROAR" },
                 Gnome = { phrases = { "Gnomish ingenuity in action! Eat sparks, %s!", "For Gnomeregan! Let's short-circuit their plans!", "Size means nothing when you've got high-yield explosives!", "Engaging combat protocol: maximum voltage, %s!" }, emote = "RUDE" },
                 Skyborne = { phrases = { "Feel the fury of the gale, %s!", "From above, judgment strikes swift and true!", "The storm winds will scatter you, %s!", "You cannot outrun the tempest, %s!" }, emote = "ROAR" }
@@ -195,15 +195,15 @@ RandomDialogRP_Defaults = {
         agreement = {
             icon = RandomDialogRP_Icons.agreement,
             races = {
-                Human = { phrases = { "Agreed, %s. That's the sensible choice.", "A sound plan, %s. You have my support.", "You speak wisely, %s. Let's do it.", "Then it's settled, %s. Lead the way." }, emote = "YES" },
-                Dwarf = { phrases = { "Aye, %s! Now ye're talking sense!", "Solid plan, %s. Count me in!", "Couldn't have put it better myself, %s.", "Right ye are, %s! Let's get to work!" }, emote = "YES" },
-                NightElf = { phrases = { "Your counsel is wise, %s. I will follow.", "I stand with you, %s.", "Truth rings in your words, %s.", "So be it, %s. Let us move swiftly." }, emote = "YES" },
-                Gnome = { phrases = { "Precisely, %s! The math checks out!", "Brilliant deduction, %s! Let's execute!", "I concur wholeheartedly, %s!", "Full steam ahead, %s!" }, emote = "YES" },
-                Orc = { phrases = { "Well spoken, %s. I stand with you.", "A warrior's plan, %s. Let us strike.", "Agreed, %s. No hesitation.", "Then it is decided, %s." }, emote = "YES" },
-                Troll = { phrases = { "Ya mon, %s! Dat sound right to me.", "Good plan, %s. I got ya back.", "Smart thinkin', %s. Let's roll.", "I'm wit ya on dat one, %s." }, emote = "YES" },
-                Tauren = { phrases = { "Your words carry wisdom, %s. I agree.", "A steady and honorable path, %s.", "I will walk beside you in this, %s.", "It is decided then, %s." }, emote = "YES" },
-                Undead = { phrases = { "A calculated choice, %s. I approve.", "Very well, %s. Let us proceed.", "You make a compelling point, %s.", "Agreed, %s. Let's get it over with." }, emote = "YES" },
-                Skyborne = { phrases = { "A clear course, %s. I will fly with you.", "Well reasoned, %s. You have my support.", "The wind favors this plan, %s.", "Agreed, %s. Let us move as one." }, emote = "YES" }
+                Human = { phrases = { "Agreed, %s. That's the sensible choice.", "A sound plan, %s. You have my support.", "You speak wisely, %s. Let's do it.", "Then it's settled, %s. Lead the way." }, emote = "NOD" },
+                Dwarf = { phrases = { "Aye, %s! Now ye're talking sense!", "Solid plan, %s. Count me in!", "Couldn't have put it better myself, %s.", "Right ye are, %s! Let's get to work!" }, emote = "NOD" },
+                NightElf = { phrases = { "Your counsel is wise, %s. I will follow.", "I stand with you, %s.", "Truth rings in your words, %s.", "So be it, %s. Let us move swiftly." }, emote = "NOD" },
+                Gnome = { phrases = { "Precisely, %s! The math checks out!", "Brilliant deduction, %s! Let's execute!", "I concur wholeheartedly, %s!", "Full steam ahead, %s!" }, emote = "NOD" },
+                Orc = { phrases = { "Well spoken, %s. I stand with you.", "A warrior's plan, %s. Let us strike.", "Agreed, %s. No hesitation.", "Then it is decided, %s." }, emote = "NOD" },
+                Troll = { phrases = { "Ya mon, %s! Dat sound right to me.", "Good plan, %s. I got ya back.", "Smart thinkin', %s. Let's roll.", "I'm wit ya on dat one, %s." }, emote = "NOD" },
+                Tauren = { phrases = { "Your words carry wisdom, %s. I agree.", "A steady and honorable path, %s.", "I will walk beside you in this, %s.", "It is decided then, %s." }, emote = "NOD" },
+                Undead = { phrases = { "A calculated choice, %s. I approve.", "Very well, %s. Let us proceed.", "You make a compelling point, %s.", "Agreed, %s. Let's get it over with." }, emote = "NOD" },
+                Skyborne = { phrases = { "A clear course, %s. I will fly with you.", "Well reasoned, %s. You have my support.", "The wind favors this plan, %s.", "Agreed, %s. Let us move as one." }, emote = "NOD" }
             },
             classes = {
                 WARRIOR = { phrases = { "Solid plan, %s. I'll take point.", "Agreed, %s. Let's hit them head-on.", "You've got my blade on it, %s.", "Good call, %s. Moving out." } },

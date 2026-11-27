@@ -284,6 +284,9 @@ phraseTab:SetSize(108, 28)
 settingsTab = CreateManagerTab()
 settingsTab:SetSize(108, 28)
 
+wheelTab = CreateManagerTab()
+wheelTab:SetSize(108, 28)
+
 managerSectionDivider = managerFrame:CreateTexture(nil, "ARTWORK")
 managerSectionDivider:SetColorTexture(0.36, 0.32, 0.17, 0.75)
 managerSectionDivider:SetHeight(1)
@@ -335,7 +338,7 @@ local function ShiftManagerContentRight()
     end
 
     for _, child in ipairs({ managerFrame:GetChildren() }) do
-        if child ~= phraseTab and child ~= settingsTab then
+        if child ~= phraseTab and child ~= settingsTab and child ~= wheelTab then
             shiftRegion(child)
         end
     end
@@ -355,6 +358,7 @@ profileSectionDivider:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 136, -130)
 profileSectionDivider:SetPoint("TOPRIGHT", managerFrame, "TOPRIGHT", -16, -130)
 phraseTab:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 9, -76)
 settingsTab:SetPoint("TOPLEFT", phraseTab, "BOTTOMLEFT", 0, -7)
+wheelTab:SetPoint("TOPLEFT", settingsTab, "BOTTOMLEFT", 0, -7)
 
 personalityLabel:ClearAllPoints()
 personalityLabel:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 145, -365)
@@ -386,16 +390,90 @@ categorySettingsDivider:SetHeight(1)
 categorySettingsDivider:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 136, -342)
 categorySettingsDivider:SetPoint("TOPRIGHT", managerFrame, "TOPRIGHT", -16, -342)
 
+emoteWheelSettingsTitle = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+emoteWheelSettingsTitle:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 500, -151)
+
+emoteWheelSettingsDivider = managerFrame:CreateTexture(nil, "ARTWORK")
+emoteWheelSettingsDivider:SetColorTexture(0.36, 0.32, 0.17, 0.75)
+emoteWheelSettingsDivider:SetWidth(1)
+emoteWheelSettingsDivider:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 486, -140)
+emoteWheelSettingsDivider:SetPoint("BOTTOMLEFT", managerFrame, "TOPLEFT", 486, -330)
+
+emoteWheelModeLabel = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+emoteWheelModeLabel:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 500, -181)
+
+emoteWheelModeDropDown = CreateFrame(
+    "Frame",
+    "RandomDialogRPEmoteWheelModeDropDown",
+    managerFrame,
+    "UIDropDownMenuTemplate"
+)
+emoteWheelModeDropDown:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 490, -190)
+UIDropDownMenu_SetWidth(emoteWheelModeDropDown, 145)
+
+emoteWheelRememberPage = CreateFrame(
+    "CheckButton", "RandomDialogRPEmoteWheelRememberPage", managerFrame, "UICheckButtonTemplate"
+)
+emoteWheelRememberPage:SetSize(26, 26)
+emoteWheelRememberPage:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 496, -230)
+emoteWheelRememberPage.label = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+emoteWheelRememberPage.label:SetPoint("LEFT", emoteWheelRememberPage, "RIGHT", 2, 0)
+emoteWheelRememberPage.label:SetWidth(135)
+emoteWheelRememberPage.label:SetJustifyH("LEFT")
+emoteWheelRememberPage.label:SetWordWrap(true)
+emoteWheelRememberPage:SetScript("OnClick", function(self)
+    RandomDialogRP_Wheel.SetRememberPage(self:GetChecked() and true or false)
+end)
+
+emoteWheelBindingHint = managerFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+emoteWheelBindingHint:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", 500, -266)
+emoteWheelBindingHint:SetWidth(165)
+emoteWheelBindingHint:SetJustifyH("LEFT")
+emoteWheelBindingHint:SetWordWrap(true)
+
+function EmoteWheelModeDropDown_OnClick(self)
+    RandomDialogRPDB.emoteWheelMode = self.value
+    RandomDialogRP_Profiles.SaveActive()
+    RefreshEmoteWheelSettingsUI()
+    RandomDialogRP_Wheel.Refresh()
+end
+
+function EmoteWheelModeDropDown_Initialize(self, level)
+    for _, option in ipairs({
+        { value = "categories", label = "emoteWheelCategories" },
+        { value = "emotes", label = "emoteWheelEmotes" }
+    }) do
+        local info = UIDropDownMenu_CreateInfo()
+        info.text = L(option.label)
+        info.value = option.value
+        info.func = EmoteWheelModeDropDown_OnClick
+        info.checked = RandomDialogRPDB.emoteWheelMode == option.value
+        UIDropDownMenu_AddButton(info, level)
+    end
+end
+UIDropDownMenu_Initialize(emoteWheelModeDropDown, EmoteWheelModeDropDown_Initialize)
+
+function RefreshEmoteWheelSettingsUI()
+    local mode = RandomDialogRPDB.emoteWheelMode == "emotes" and "emotes" or "categories"
+    UIDropDownMenu_SetSelectedValue(emoteWheelModeDropDown, mode)
+    UIDropDownMenu_SetText(
+        emoteWheelModeDropDown,
+        L(mode == "emotes" and "emoteWheelEmotes" or "emoteWheelCategories")
+    )
+    emoteWheelRememberPage:SetChecked(RandomDialogRPDB.emoteWheel and RandomDialogRPDB.emoteWheel.rememberPage == true)
+end
+
 local function PlaceManagerControl(control, x, y)
     control:ClearAllPoints()
     control:SetPoint("TOPLEFT", managerFrame, "TOPLEFT", x, y)
 end
 
 function SetManagerTab(tab)
-    if tab ~= "settings" then tab = "phrases" end
+    if tab ~= "settings" and tab ~= "wheel" then tab = "phrases" end
     selectedManagerTab = tab
     local showPhrases = tab == "phrases"
     local showSettings = tab == "settings"
+    local showWheel = tab == "wheel"
 
     if showPhrases then
         PlaceManagerControl(phrasePersonalityLabel, 145, -75)
@@ -418,7 +496,7 @@ function SetManagerTab(tab)
         editBox:SetSize(300, 20)
         PlaceManagerControl(scrollFrame, 135, -222)
         scrollFrame:SetSize(520, 230)
-    else
+    elseif showSettings then
         PlaceManagerControl(languageSectionLabel, 145, -75)
         PlaceManagerControl(langDropDown, 135, -85)
         PlaceManagerControl(RandomDialogRPMinimapToggle, 295, -80)
@@ -441,8 +519,8 @@ function SetManagerTab(tab)
 
     phrasePersonalityLabel:SetShown(showPhrases)
     phrasePersonalityDropDown:SetShown(showPhrases)
-    categorySectionLabel:SetShown(true)
-    catDropDown:SetShown(true)
+    categorySectionLabel:SetShown(not showWheel)
+    catDropDown:SetShown(not showWheel)
     phraseRaceLabel:SetShown(showPhrases)
     phraseRaceDropDown:SetShown(showPhrases)
     phraseClassLabel:SetShown(showPhrases)
@@ -456,6 +534,13 @@ function SetManagerTab(tab)
     scrollFrame:SetShown(showPhrases)
     categorySettingsTitle:SetShown(showSettings)
     categorySettingsDivider:SetShown(showSettings)
+    emoteWheelSettingsTitle:SetShown(showSettings)
+    emoteWheelSettingsDivider:SetShown(showSettings)
+    emoteWheelModeLabel:SetShown(showSettings)
+    emoteWheelModeDropDown:SetShown(showSettings)
+    emoteWheelRememberPage:SetShown(showSettings)
+    emoteWheelRememberPage.label:SetShown(showSettings)
+    emoteWheelBindingHint:SetShown(showSettings)
     categoryNameFieldLabel:SetShown(showSettings)
     categoryNameBox:SetShown(showSettings)
     addCategoryBtn:SetShown(showSettings)
@@ -490,10 +575,15 @@ function SetManagerTab(tab)
     if tutorialBtn then tutorialBtn:SetShown(showSettings) end
     managerVersionText:SetShown(showSettings)
     if warningText then warningText:SetShown(showSettings) end
+    if RandomDialogRPWheelEditor then
+        RandomDialogRPWheelEditor:SetShown(showWheel)
+        if showWheel then RefreshWheelEditor() end
+    end
 
-    for _, tabButton in ipairs({ phraseTab, settingsTab }) do
+    for _, tabButton in ipairs({ phraseTab, settingsTab, wheelTab }) do
         local selected = (tabButton == phraseTab and showPhrases)
             or (tabButton == settingsTab and showSettings)
+            or (tabButton == wheelTab and showWheel)
         tabButton.background:SetColorTexture(
             selected and 0.29 or 0.055,
             selected and 0.27 or 0.05,
@@ -572,7 +662,7 @@ local function ShowTutorial()
 end
 
 -- Increment when a new feature should be introduced outside a major/minor release.
-local tutorialRevision = 2
+local tutorialRevision = 6
 local tutorialVersionWarningShown = false
 
 local function MaybeShowTutorial()
@@ -604,8 +694,10 @@ table.insert(UISpecialFrames, "RandomDialogRPTutorialFrame")
 
 phraseTab.label:SetText(L("phrasesTab"))
 settingsTab.label:SetText(L("settingsTab"))
+wheelTab.label:SetText(L("wheelTab"))
 phraseTab:SetScript("OnClick", function() SetManagerTab("phrases") end)
 settingsTab:SetScript("OnClick", function() SetManagerTab("settings") end)
+wheelTab:SetScript("OnClick", function() SetManagerTab("wheel") end)
 SetManagerTab(selectedManagerTab)
 
 local activeEmotePopup
@@ -903,9 +995,15 @@ RefreshManagerUI = function()
     managerTitle:SetText(L("managerTitle"))
     phraseTab.label:SetText(L("phrasesTab"))
     settingsTab.label:SetText(L("settingsTab"))
+    wheelTab.label:SetText(L("wheelTab"))
     phrasePersonalityLabel:SetText(L("personalityLabel"))
     categorySectionLabel:SetText(L("categoryLabel"))
     categorySettingsTitle:SetText(L("categorySettingsTitle"))
+    emoteWheelSettingsTitle:SetText(L("emoteWheelSettingsTitle"))
+    emoteWheelModeLabel:SetText(L("emoteWheelModeLabel"))
+    emoteWheelRememberPage.label:SetText(L("emoteWheelRememberPage"))
+    emoteWheelBindingHint:SetText(L("emoteWheelBindingHint"))
+    RefreshEmoteWheelSettingsUI()
     phraseSearchLabel:SetText(L("searchLabel"))
     categoryNameFieldLabel:SetText(L("categoryName"))
     phraseEntryLabel:SetText(L("phraseLabel"))
@@ -917,6 +1015,7 @@ RefreshManagerUI = function()
         not RandomDialogRPDB.minimap or RandomDialogRPDB.minimap.visible ~= false
     )
     SetManagerTab(selectedManagerTab)
+    RandomDialogRP_Wheel.Refresh()
 
     UIDropDownMenu_SetSelectedValue(phraseRaceDropDown, selectedPhraseRace)
     UIDropDownMenu_SetText(phraseRaceDropDown, selectedPhraseRace)
@@ -982,6 +1081,7 @@ addCategoryBtn:SetScript("OnClick", function()
         icon = "Interface\\Icons\\INV_Misc_QuestionMark"
     }
     table.insert(personalityData.categoryOrder, name)
+    RandomDialogRP_Wheel.AddNewCategory(name)
     selectedCategory = name
     categoryNameBox:SetText("")
     if selectedPhraseRace == currentRace then RefreshActionButtons() end
@@ -1009,6 +1109,7 @@ renameCategoryBtn:SetScript("OnClick", function()
         for index, category in ipairs(personalityData.categoryOrder) do
             if category == oldCategory then personalityData.categoryOrder[index] = name; break end
         end
+        RandomDialogRP_Wheel.RenameCategory(oldCategory, name)
         selectedCategory = name
     end
     if selectedPhraseRace == currentRace then RefreshActionButtons() end
@@ -1093,6 +1194,7 @@ StaticPopupDialogs["RANDOMDIALOGRP_DELETE_CATEGORY_CONFIRM"] = {
         end
 
         personalityData[data.category] = nil
+        RandomDialogRP_Wheel.DeleteCategory(data.category)
         for index, category in ipairs(personalityData.categoryOrder) do
             if category == data.category then
                 table.remove(personalityData.categoryOrder, index)

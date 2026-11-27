@@ -1,3 +1,22 @@
+## 4.2.0 - 2026-11-26
+
+### Added
+
+- Added a bindable, movable emote wheel with category actions, standalone
+  emotes, category icons, tooltips, and ten buttons per page.
+- Added a Wheel tab for choosing and ordering buttons per personality or
+  profile, and settings for the opening view and remembering selected pages.
+- Added click-outside dismissal while allowing normal mouse interaction.
+
+### Changed
+
+- Updated the tutorial with wheel instructions.
+
+### Fixed
+
+- Corrected unsupported emote tokens and mapped saved slash aliases to their
+  WoW Forever equivalents.
+
 ## 4.1.1 - 2026-11-26
 
 ### Changed

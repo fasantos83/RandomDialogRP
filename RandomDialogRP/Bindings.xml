@@ -1,0 +1,5 @@
+<Bindings>
+    <Binding name="RANDOMDIALOGRP_TOGGLE_EMOTE_WHEEL" header="RANDOMDIALOGRP">
+        RandomDialogRP_ToggleEmoteWheel()
+    </Binding>
+</Bindings>

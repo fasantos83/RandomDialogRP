@@ -80,13 +80,50 @@ builtinCategories = {
 
 emoteOptions = {
     "AGREE", "AMAZE", "ANGRY", "APPLAUD", "ATTACKMYTARGET", "BARK", "BECKON",
-    "BOW", "BYE", "CACKLE", "CHEER", "CHEST", "CHICKEN", "CHUCKLE", "CLAP", "COWER", "CRY",
+    "BOW", "BYE", "CACKLE", "CHEER", "CHICKEN", "CHUCKLE", "CLAP", "COWER", "CRY",
     "DANCE", "DRINK", "EAT", "FLEE", "FLEX", "GLOAT", "GREET", "GROWL",
-    "GUFFAW", "HAIL", "KISS", "KNEEL", "LAUGH", "LAYDOWN", "LOL", "MOON",
-    "NO", "POINT", "ROAR", "RUDE", "SALUTE", "SHOUT", "SHRUG", "SIGH", "SIT",
-    "SLEEP", "SMILE", "SORRY", "STARE", "SURPRISED", "TALK", "THANK",
-    "THREATEN", "WAVE", "WELCOME", "WHISTLE", "WINK", "WORK", "YAWN", "YES"
+    "GUFFAW", "HAIL", "KISS", "KNEEL", "LAUGH", "LAYDOWN", "MOON",
+    "NO", "NOD", "POINT", "ROAR", "RUDE", "SALUTE", "SHOUT", "SHRUG", "SIGH", "SIT",
+    "SLEEP", "SMILE", "APOLOGIZE", "STARE", "SURPRISED", "TALK", "THANK",
+    "THREATEN", "WAVE", "WELCOME", "WHISTLE", "WINK", "WORK", "YAWN"
 }
+
+local legacyEmoteAliases = { LOL = "LAUGH", SORRY = "APOLOGIZE", YES = "NOD" }
+
+function RandomDialogRP_UI.ResolveEmote(emote)
+    return legacyEmoteAliases[emote] or emote
+end
+
+function RandomDialogRP_UI.IsSupportedEmote(emote)
+    if emote == "CHEST" then return false end
+    local known = not MAXEMOTEINDEX
+    if MAXEMOTEINDEX then
+        for index = 1, MAXEMOTEINDEX do
+            if _G["EMOTE" .. index .. "_TOKEN"] == emote then
+                known = true
+                break
+            end
+        end
+    end
+    return known
+end
+
+function RandomDialogRP_UI.PerformEmote(emote)
+    emote = RandomDialogRP_UI.ResolveEmote(emote)
+    if not RandomDialogRP_UI.IsSupportedEmote(emote) then
+        print("|cFFFF0000[RandomDialogRP]|r " .. string.format(L("unsupportedEmote"), tostring(emote)))
+        return
+    end
+    local restricted
+    if C_ChatInfo and C_ChatInfo.PerformEmote then
+        restricted = C_ChatInfo.PerformEmote(emote)
+    else
+        restricted = DoEmote(emote)
+    end
+    if restricted then
+        print("|cFFFF0000[RandomDialogRP]|r " .. string.format(L("restrictedEmote"), tostring(emote)))
+    end
+end
 
 iconOptions = (GetMacroIcons and GetMacroIcons()) or {}
 if #iconOptions == 0 then iconOptions = { "Interface\\Icons\\INV_Misc_QuestionMark" } end
@@ -215,6 +252,7 @@ function InitCustomDB()
         end
         if not found then
             table.insert(personalityData.categoryOrder, category)
+            RandomDialogRP_Wheel.AddNewCategory(category)
         end
     end
 
@@ -333,9 +371,9 @@ end
 
 function GetPhraseEmote(phrase, categoryData)
     if type(phrase) == "table" and phrase.emote ~= nil then
-        return phrase.emote
+        return RandomDialogRP_UI.ResolveEmote(phrase.emote)
     end
-    return categoryData and categoryData.emote
+    return categoryData and RandomDialogRP_UI.ResolveEmote(categoryData.emote)
 end
 
 function SetPhraseEmote(categoryData, index, emote)
@@ -436,6 +474,6 @@ function ExecuteRP(category)
     recentPhraseSelections[selectionKey] = { index = index, time = now }
     local emote = GetPhraseEmote(phrase, { emote = activeEmote })
     if emote then
-        DoEmote(emote)
+        RandomDialogRP_UI.PerformEmote(emote)
     end
 end
